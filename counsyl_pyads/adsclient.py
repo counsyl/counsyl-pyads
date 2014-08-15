@@ -48,7 +48,11 @@ class AdsClient(object):
         if (self.socket is not None):
             # stop async reading thread
             self._stop_reading.set()
-            self._async_read_thread.join()
+            try:
+                self._async_read_thread.join()
+            except RuntimeError:
+                # ignore Runtime error raised if thread doesn't exist
+                pass
             # close socket
             self.socket.close()
             self.socket = None
