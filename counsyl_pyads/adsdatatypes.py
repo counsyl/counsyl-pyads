@@ -1,7 +1,7 @@
 """Collection of utility functions for data types available in Twincat.
 
 A documentation of Twincat data types is available at
-http://infosys.beckhoff.com/content/1033/tcplccontrol/html/tcplcctrl_plc_data_types_overview.htm?id=20295  #nopep8
+http://infosys.beckhoff.com/content/1033/tcplccontrol/html/tcplcctrl_plc_data_types_overview.htm?id=20295  # nopep8
 """
 import datetime
 import struct
@@ -53,7 +53,7 @@ class AdsStringDatatype(AdsDatatype):
 
     def unpack_from_buffer(self, byte_buffer, offset):
         """c.f. unpack()"""
-        value =  super(AdsStringDatatype, self).unpack_from_buffer(
+        value = super(AdsStringDatatype, self).unpack_from_buffer(
             byte_buffer, offset)
         return value.strip(' \t\r\n\0')
 
@@ -101,7 +101,7 @@ class AdsTimeDatatype(AdsDatatype):
         return self.milliseconds_integer_to_time(value)
 
     def unpack_from_buffer(self, byte_buffer, offset):
-        value =  super(AdsTimeDatatype, self).unpack_from_buffer(
+        value = super(AdsTimeDatatype, self).unpack_from_buffer(
             byte_buffer, offset)
         return self.milliseconds_integer_to_time(value)
 
@@ -138,7 +138,7 @@ class AdsDateDatatype(AdsDatatype):
         return self.days_integer_to_time(value)
 
     def unpack_from_buffer(self, byte_buffer, offset):
-        value =  super(AdsTimeDatatype, self).unpack_from_buffer(
+        value = super(AdsTimeDatatype, self).unpack_from_buffer(
             byte_buffer, offset)
         return self.days_integer_to_time(value)
 
@@ -147,7 +147,8 @@ class AdsDateDatatype(AdsDatatype):
 class AdsDateAndTimeDatatype(AdsDatatype):
     def __init__(self):
         # DATE, TIME, and DATE_AND_TIME are all handled as WORD by Twincat
-        super(AdsDateAndTimeDatatype, self).__init__(byte_count=4, pack_format='I')
+        super(AdsDateAndTimeDatatype, self).__init__(
+            byte_count=4, pack_format='I')
 
     def pack(self, value):
         pass
@@ -184,4 +185,4 @@ TIME_OF_DAY = TIME  # only semantically different from TIME
 TOD = TIME_OF_DAY  # alias
 DATE = AdsDateDatatype()
 DATE_AND_TIME = AdsDateAndTimeDatatype()
-DT = DATE_AND_TIME  #alias
+DT = DATE_AND_TIME  # alias
