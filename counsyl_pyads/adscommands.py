@@ -67,11 +67,6 @@ class DeviceInfoResponse(AdsResponse):
         deviceNameRaw = responseAmsPacket.Data[8:deviceNameEnd]
         self.DeviceName = deviceNameRaw.decode(PYADS_ENCODING).strip(' \t\n\r')
 
-    MajorVersion = 0
-    MinorVersion = 0
-    Build = 0
-    DeviceName = 'Ads Device'
-
     def __str__(self):
         return "%s (Version %s)" % (self.DeviceName, self.Version())
 
@@ -90,10 +85,6 @@ class ReadCommand(AdsCommand):
         self.IndexOffset = indexOffset
         self.Length = length
 
-    IndexGroup = 0
-    IndexOffset = 0
-    Length = 0
-
     def CreateRequest(self):
         return struct.pack(
             '<III', self.IndexGroup, self.IndexOffset, self.Length)
@@ -108,9 +99,6 @@ class ReadResponse(AdsResponse):
 
         self.Length = struct.unpack_from('I', responseAmsPacket.Data, 4)[0]
         self.Data = responseAmsPacket.Data[8:]
-
-    Length = 0
-    Data = '0'
 
     def __str__(self):
         result = "AdsReadResponse:\n"
@@ -141,9 +129,6 @@ class ReadStateResponse(AdsResponse):
         self.DeviceState = struct.unpack_from(
             'H', responseAmsPacket.Data, 6)[0]
 
-    AdsState = 0
-    DeviceState = 0
-
     def __str__(self):
         return "Ads/Device State: %s/%s" % (self.AdsState, self.DeviceState)
 
@@ -155,11 +140,6 @@ class ReadWriteCommand(AdsCommand):
         self.IndexOffset = indexOffset
         self.ReadLen = readLen
         self.Data = dataToWrite
-
-    IndexGroup = 0
-    IndexOffset = 0
-    ReadLen = 0
-    Data = ''
 
     def CreateRequest(self):
         result = struct.pack('<II', self.IndexGroup, self.IndexOffset)
@@ -178,9 +158,6 @@ class ReadWriteResponse(AdsResponse):
         self.Length = struct.unpack_from('I', responseAmsPacket.Data, 4)[0]
         self.Data = responseAmsPacket.Data[8:]
 
-    Length = 0
-    Data = '0'
-
     def __str__(self):
         result = "AdsReadWriteResponse:\n"
         result += AmsPacket.GetHexStringBlock(self.Data)
@@ -193,10 +170,6 @@ class WriteCommand(AdsCommand):
         self.IndexGroup = indexGroup
         self.IndexOffset = indexOffset
         self.Data = data
-
-    IndexGroup = 0
-    IndexOffset = 0
-    Data = ''
 
     def CreateRequest(self):
         result = struct.pack(
@@ -219,10 +192,6 @@ class WriteControlCommand(AdsCommand):
         self.AdsState = adsState
         self.DeviceState = deviceState
         self.Data = data
-
-    AdsState = 0
-    DeviceState = 0
-    Data = ''
 
     def CreateRequest(self):
         result = struct.pack(
