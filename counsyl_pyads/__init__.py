@@ -20,3 +20,6 @@ __all__ = [
     "BinaryParser",
     "HexBlock",
 ]
+
+
+PYADS_ENCODING = 'windows-1252'
