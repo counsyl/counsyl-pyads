@@ -159,12 +159,15 @@ class AdsClient(object):
 
     # BEGIN variable access methods
 
-    def get_symbol_handle(self, variableName):
+    def get_symbol_handle(self, var_name):
+        # convert unicode or ascii input to the Windows-1252 encoding used by
+        # the plc
+        var_name_enc = var_name.encode('windows-1252')
         symbol = self.read_write(
             indexGroup=0xF003,
             indexOffset=0x0000,
             readLen=4,
-            dataToWrite=variableName + '\x00')
+            dataToWrite=var_name_enc + '\x00')
         return struct.unpack("I", symbol.Data)[0]
 
     def read_by_handle(self, symbolHandle, ads_data_type):
