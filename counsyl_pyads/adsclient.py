@@ -127,7 +127,13 @@ class AdsClient(object):
 
     def read_device_info(self):
         cmd = DeviceInfoCommand()
-        return self.execute(cmd)
+        resp = self.execute(cmd)
+        return {
+            'major_version': unicode(resp.MajorVersion),
+            'minor_version': unicode(resp.MinorVersion),
+            'build': unicode(resp.Build),
+            'device_name': unicode(resp.DeviceName),
+        }
 
     def read(self, indexGroup, indexOffset, length):
         cmd = ReadCommand(indexGroup, indexOffset, length)
