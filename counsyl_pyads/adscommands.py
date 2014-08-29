@@ -65,7 +65,8 @@ class DeviceInfoResponse(AdsResponse):
                 break
 
         deviceNameRaw = responseAmsPacket.Data[8:deviceNameEnd]
-        self.DeviceName = deviceNameRaw.decode(PYADS_ENCODING).strip(' \t\n\r')
+        self.DeviceName = deviceNameRaw.decode(
+            PYADS_ENCODING).strip(' \t\n\r\0')
 
     @property
     def Version(self):
