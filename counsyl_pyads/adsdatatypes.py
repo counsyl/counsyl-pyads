@@ -49,12 +49,12 @@ class AdsStringDatatype(AdsDatatype):
     def pack(self, value):
         # encode in Windows-1252 encoding
         value = value.encode(PYADS_ENCODING)
-        return super(AdsTimeDatatype, self).pack(value)
+        return super(AdsStringDatatype, self).pack(value)
 
     def pack_into_buffer(self, byte_buffer, offset, value):
         # encode in Windows-1252 encoding
         value = value.encode(PYADS_ENCODING)
-        super(AdsTimeDatatype, self).pack_into_buffer(
+        super(AdsStringDatatype, self).pack_into_buffer(
             byte_buffer, offset, value)
 
     def unpack(self, value):
