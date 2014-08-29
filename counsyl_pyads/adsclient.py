@@ -5,6 +5,7 @@ import struct
 import threading
 import time
 
+from . import PYADS_ENCODING
 from .amspacket import AmsPacket
 from .adsdatatypes import AdsDatatype
 from .adsexception import AdsException
@@ -170,7 +171,7 @@ class AdsClient(object):
         """
         # convert unicode or ascii input to the Windows-1252 encoding used by
         # the plc
-        var_name_enc = var_name.encode('windows-1252')
+        var_name_enc = var_name.encode(PYADS_ENCODING)
         symbol = self.read_write(
             indexGroup=0xF003,
             indexOffset=0x0000,
