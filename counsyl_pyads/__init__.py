@@ -23,7 +23,5 @@ __all__ = [
     "AmsPacket",
     "BinaryParser",
     "HexBlock",
+    "PYADS_ENCODING",
 ]
-
-
-PYADS_ENCODING = 'windows-1252'
