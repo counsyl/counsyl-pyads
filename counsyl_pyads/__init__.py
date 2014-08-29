@@ -1,3 +1,6 @@
+PYADS_ENCODING = 'windows-1252'
+
+
 from .adsclient import AdsClient
 from .adsconnection import AdsConnection
 from .adsdatatypes import AdsDatatype
