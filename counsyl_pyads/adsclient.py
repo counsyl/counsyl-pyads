@@ -262,9 +262,11 @@ class AdsClient(object):
             comment_start_ptr = type_end_ptr + 1
             comment_end_ptr = comment_start_ptr + comment_length
 
-            name = resp2.Data[name_start_ptr:name_end_ptr]
+            name = resp2.Data[name_start_ptr:name_end_ptr].decode(
+                PYADS_ENCODING).strip(' \t\n\r\0')
             symtype = resp2.Data[type_start_ptr:type_end_ptr]
-            comment = resp2.Data[comment_start_ptr:comment_end_ptr]
+            comment = resp2.Data[comment_start_ptr:comment_end_ptr].decode(
+                PYADS_ENCODING).strip(' \t\n\r\0')
 
             ptr = comment_end_ptr + 1
 
