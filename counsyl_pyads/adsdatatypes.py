@@ -183,7 +183,9 @@ DWORD = AdsDatatype(byte_count=4, pack_format='I')  # UInt32
 SINT = AdsDatatype(byte_count=1, pack_format='b')  # Int8 (Char)
 USINT = AdsDatatype(byte_count=1, pack_format='B')  # UInt8
 INT = AdsDatatype(byte_count=2, pack_format='h')  # Int16
+INT16 = INT  # Int16
 UINT = AdsDatatype(byte_count=2, pack_format='H')  # UInt16
+UINT16 = UINT  # UInt16
 DINT = AdsDatatype(byte_count=4, pack_format='i')  # Int32
 UDINT = AdsDatatype(byte_count=4, pack_format='I')  # UInt32
 # LINT (64 Bit Integer, wird aktuell von TwinCAT nicht unterstuetzt)
@@ -199,3 +201,9 @@ TOD = TIME_OF_DAY  # alias
 DATE = AdsDateDatatype()
 DATE_AND_TIME = AdsDateAndTimeDatatype()
 DT = DATE_AND_TIME  # alias
+
+# TODO: Other data types seen in PLC output but not handled yet:
+# * 'ARRAY [0..3] OF UINT'
+# * TON
+# * FW_NOOFBYTE
+# * SCALING_BLOCK (custom data type used by @neldridge)
