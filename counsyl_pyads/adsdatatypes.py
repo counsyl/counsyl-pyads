@@ -6,6 +6,8 @@ http://infosys.beckhoff.com/content/1033/tcplccontrol/html/tcplcctrl_plc_data_ty
 import datetime
 import struct
 
+from . import PYADS_ENCODING
+
 
 class AdsDatatype(object):
     """Represents a simple data type with a fixed byte count."""
@@ -44,18 +46,29 @@ class AdsStringDatatype(AdsDatatype):
         super(AdsStringDatatype, self).__init__(
             byte_count=str_length, pack_format='%ss' % str_length)
 
+    def pack(self, value):
+        # encode in Windows-1252 encoding
+        value = value.encode(PYADS_ENCODING)
+        return super(AdsStringDatatype, self).pack(value)
+
+    def pack_into_buffer(self, byte_buffer, offset, value):
+        # encode in Windows-1252 encoding
+        value = value.encode(PYADS_ENCODING)
+        super(AdsStringDatatype, self).pack_into_buffer(
+            byte_buffer, offset, value)
+
     def unpack(self, value):
         """Unpacks the value into a string of str_length, then strips null
         characters and white space.
         """
         value = super(AdsStringDatatype, self).unpack(value)
-        return value.strip(' \t\r\n\0')
+        return value.decode(PYADS_ENCODING).strip(' \t\r\n\0')
 
     def unpack_from_buffer(self, byte_buffer, offset):
         """c.f. unpack()"""
         value = super(AdsStringDatatype, self).unpack_from_buffer(
             byte_buffer, offset)
-        return value.strip(' \t\r\n\0')
+        return value.decode(PYADS_ENCODING).strip(' \t\r\n\0')
 
 
 class AdsTimeDatatype(AdsDatatype):

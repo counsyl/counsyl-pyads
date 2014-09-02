@@ -5,6 +5,7 @@ import struct
 import threading
 import time
 
+from . import PYADS_ENCODING
 from .amspacket import AmsPacket
 from .adsdatatypes import AdsDatatype
 from .adsexception import AdsException
@@ -153,15 +154,31 @@ class AdsClient(object):
 
     # BEGIN variable access methods
 
-    def get_symbol_handle(self, variableName):
+    def get_symbol_handle(self, var_name):
+        """Retrieves the internal handle of a symbol identified by symbol name.
+
+        var_name: is of type unicode (or str if only ASCII characters are used)
+            Both fully qualified PLC symbol names (e.g. including leading "."
+            for global variables) or PLC variable names (the name used in the
+            PLC program) are accepted. Names are NoT case-sensitive because the
+            PLC converts all variables to all-uppercase internally.
+        """
+        # convert unicode or ascii input to the Windows-1252 encoding used by
+        # the plc
+        var_name_enc = var_name.encode(PYADS_ENCODING)
         symbol = self.read_write(
             indexGroup=0xF003,
             indexOffset=0x0000,
             readLen=4,
-            dataToWrite=variableName + '\x00')
+            dataToWrite=var_name_enc + '\x00')
         return struct.unpack("I", symbol.Data)[0]
 
     def read_by_handle(self, symbolHandle, ads_data_type):
+        """Retrieves the current value of a symbol identified by its handle.
+
+        ads_data_type: The data type of the symbol must be specified as
+            AdsDatatype object.
+        """
         assert(isinstance(ads_data_type, AdsDatatype))
         response = self.read(
             indexGroup=0xF005,
@@ -171,10 +188,26 @@ class AdsClient(object):
         return ads_data_type.unpack(data)
 
     def read_by_name(self, var_name, ads_data_type):
+        """Retrieves the current value of a symbol identified by symbol name.
+
+        This simply calls get_symbol_handle() first and then uses the handle to
+        call read_by_handle().
+
+        var_name: must meet the same requirements as in get_symbol_handle, i.e.
+            be unicode or an ASCII-only str.
+        ads_data_type: must meet the same requirements as in read_by_handle.
+        """
         symbol_handle = self.get_symbol_handle(var_name)
         return self.read_by_handle(symbol_handle, ads_data_type)
 
     def write_by_handle(self, symbolHandle, ads_data_type, value):
+        """Retrieves the current value of a symbol identified by its handle.
+
+        ads_data_type: The data type of the symbol must be specified as
+            AdsDatatype object.
+        value: must meet the requirements of the ads_data_type. For example,
+            integer datatypes will require a number to be passed, etc.
+        """
         assert(isinstance(ads_data_type, AdsDatatype))
         value_raw = ads_data_type.pack(value)
         self.write(
@@ -183,6 +216,17 @@ class AdsClient(object):
             data=value_raw)
 
     def write_by_name(self, var_name, ads_data_type, value):
+        """Sets the current value of a symbol identified by symbol name.
+
+        This simply calls get_symbol_handle() first and then uses the handle to
+        call write_by_handle().
+
+        var_name: must meet the same requirements as in get_symbol_handle, i.e.
+            be unicode or an ASCII-only str.
+        ads_data_type: must meet the same requirements as in write_by_handle.
+        value: must meet the requirements of the ads_data_type. For example,
+            integer datatypes will require a number to be passed, etc.
+        """
         symbol_handle = self.get_symbol_handle(var_name)
         self.write_by_handle(symbol_handle, ads_data_type, value)
 
@@ -218,9 +262,11 @@ class AdsClient(object):
             comment_start_ptr = type_end_ptr + 1
             comment_end_ptr = comment_start_ptr + comment_length
 
-            name = resp2.Data[name_start_ptr:name_end_ptr]
+            name = resp2.Data[name_start_ptr:name_end_ptr].decode(
+                PYADS_ENCODING).strip(' \t\n\r\0')
             symtype = resp2.Data[type_start_ptr:type_end_ptr]
-            comment = resp2.Data[comment_start_ptr:comment_end_ptr]
+            comment = resp2.Data[comment_start_ptr:comment_end_ptr].decode(
+                PYADS_ENCODING).strip(' \t\n\r\0')
 
             ptr = comment_end_ptr + 1
 
