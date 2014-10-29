@@ -33,7 +33,7 @@ Beckhoff PLCs won't accept connections from just anyone. The Twincat System Mana
      * `Target Route`: Static
      * `Remote Route`: None
 
-Alternatively, you could use the registration helper script in the [pyads_relay](https://github.counsyl.com/dev/pyads_relay) package.
+Alternatively, you could use the registration helper script in the [pyads_relay](https://github.counsyl.com/automation/pyads_relay) package.
 
 
 ### Usage
