@@ -18,7 +18,7 @@ python setup.py install
 
 Beckhoff PLCs won't accept connections from just anyone. The Twincat System Manager on the PLC contains a list of "routes" that define allowed clients. Perform the following steps to add the host where you plan to use `counsyl_pyads` to the list of routes:
 
- * Find your local IP address (`ifconfig | grep inet` should help), e.g. `192.168.4.13`
+ 1. Find your local IP address (`ifconfig | grep inet` should help), e.g. `192.168.4.13`
  * Dream up an Ams ID for your local machine. The Ams ID is a program identifier used by the ADS protocol. It's often `IP address + .1.1` but any six byte sequence works, for example`192.168.192.168.1.1`.
  * RDP to the PLC and log in (get the password from anyone on the automation team)
  * Open the System Manager (right click Twincat tray icon, then select System Manager)
