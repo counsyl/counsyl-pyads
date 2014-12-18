@@ -40,6 +40,10 @@ class AdsClient(object):
         # event to signal shutdown to async reader thread
         self._stop_reading = threading.Event()
 
+        # lock to ensure only one command is executed 
+        # (sent to the PLC) at a time:
+        self._ads_lock = threading.Lock()
+
     # BEGIN Connection Management Functions
 
     @property
@@ -118,18 +122,22 @@ class AdsClient(object):
     # BEGIN Read/Write Methods
 
     def execute(self, command):
-        # create packet
-        packet = command.to_ams_packet(self.ads_connection)
-        # send to client
-        responsePacket = self.send_and_recv(packet)
-        # check for error
-        if (responsePacket.ErrorCode > 0):
-            raise AdsException(responsePacket.ErrorCode)
-        # return response object
-        result = command.CreateResponse(responsePacket)
-        if (result.Error > 0):
-            raise AdsException(result.Error)
-        return result
+        with self._ads_lock:
+            # create packet
+            packet = command.to_ams_packet(self.ads_connection)
+            
+            # send to client
+            responsePacket = self.send_and_recv(packet)
+            # check for error
+            if (responsePacket.ErrorCode > 0):
+                raise AdsException(responsePacket.ErrorCode)
+
+            # return response object
+            result = command.CreateResponse(responsePacket)
+            if (result.Error > 0):
+                raise AdsException(result.Error)
+
+            return result
 
     def read_device_info(self):
         cmd = DeviceInfoCommand()
