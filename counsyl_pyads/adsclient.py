@@ -9,6 +9,7 @@ from . import PYADS_ENCODING
 from .amspacket import AmsPacket
 from .adsdatatypes import AdsDatatype
 from .adsexception import AdsException
+from .adsexception import PyadsException
 from .adssymbol import AdsSymbol
 
 from .adscommands import DeviceInfoCommand
@@ -66,7 +67,11 @@ class AdsClient(object):
             self.socket.connect(
                 (self.ads_connection.target_ip, ADS_PORT_DEFAULT))
         except Exception as ex:
-            raise Exception("Could not connect to device: {ex}".format(ex=ex))
+            # If an error occurs during connection, close the socket
+            # and set it to None so that is_connected() returns False:
+            self.socket.close()
+            self.socket = None
+            raise PyadsException("Could not connect to device: {ex}".format(ex=ex))
 
         try:
             # start reading thread
@@ -313,8 +318,14 @@ class AdsClient(object):
             self.connect()
         # prepare packet with invoke id
         self.prepare_command_invoke(amspacket)
-        # send tcp-header and ams-data
-        self.socket.send(self.get_tcp_packet(amspacket))
+        
+        try:
+            # send tcp-header and ams-data
+            self.socket.send(self.get_tcp_packet(amspacket))
+        except Exception as ex:
+            self.close()
+            raise PyadsException("Could not communicate with device: {ex}".format(ex=ex))
+
         # here's your packet
         return self.await_command_invoke()
 

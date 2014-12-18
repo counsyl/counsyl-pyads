@@ -4,6 +4,7 @@ PYADS_ENCODING = 'windows-1252'
 from .adsclient import AdsClient
 from .adsconnection import AdsConnection
 from .adsdatatypes import AdsDatatype
+from .adsexception import PyadsException
 from .adsexception import AdsException
 from .adsstate import AdsState
 from .adssymbol import AdsSymbol
@@ -17,6 +18,7 @@ __all__ = [
     "AdsClient",
     "AdsConnection",
     "AdsDatatype",
+    "PyadsException",
     "AdsException",
     "AdsState",
     "AdsSymbol",
