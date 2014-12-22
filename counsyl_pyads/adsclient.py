@@ -9,6 +9,7 @@ from . import PYADS_ENCODING
 from .amspacket import AmsPacket
 from .adsdatatypes import AdsDatatype
 from .adsexception import AdsException
+from .adsexception import PyadsException
 from .adssymbol import AdsSymbol
 
 from .adscommands import DeviceInfoCommand
@@ -39,6 +40,10 @@ class AdsClient(object):
         # event to signal shutdown to async reader thread
         self._stop_reading = threading.Event()
 
+        # lock to ensure only one command is executed 
+        # (sent to the PLC) at a time:
+        self._ads_lock = threading.Lock()
+
     # BEGIN Connection Management Functions
 
     @property
@@ -66,7 +71,11 @@ class AdsClient(object):
             self.socket.connect(
                 (self.ads_connection.target_ip, ADS_PORT_DEFAULT))
         except Exception as ex:
-            raise Exception("Could not connect to device: {ex}".format(ex=ex))
+            # If an error occurs during connection, close the socket
+            # and set it to None so that is_connected() returns False:
+            self.socket.close()
+            self.socket = None
+            raise PyadsException("Could not connect to device: {ex}".format(ex=ex))
 
         try:
             # start reading thread
@@ -113,18 +122,22 @@ class AdsClient(object):
     # BEGIN Read/Write Methods
 
     def execute(self, command):
-        # create packet
-        packet = command.to_ams_packet(self.ads_connection)
-        # send to client
-        responsePacket = self.send_and_recv(packet)
-        # check for error
-        if (responsePacket.ErrorCode > 0):
-            raise AdsException(responsePacket.ErrorCode)
-        # return response object
-        result = command.CreateResponse(responsePacket)
-        if (result.Error > 0):
-            raise AdsException(result.Error)
-        return result
+        with self._ads_lock:
+            # create packet
+            packet = command.to_ams_packet(self.ads_connection)
+            
+            # send to client
+            responsePacket = self.send_and_recv(packet)
+            # check for error
+            if (responsePacket.ErrorCode > 0):
+                raise AdsException(responsePacket.ErrorCode)
+
+            # return response object
+            result = command.CreateResponse(responsePacket)
+            if (result.Error > 0):
+                raise AdsException(result.Error)
+
+            return result
 
     def read_device_info(self):
         cmd = DeviceInfoCommand()
@@ -313,8 +326,14 @@ class AdsClient(object):
             self.connect()
         # prepare packet with invoke id
         self.prepare_command_invoke(amspacket)
-        # send tcp-header and ams-data
-        self.socket.send(self.get_tcp_packet(amspacket))
+        
+        try:
+            # send tcp-header and ams-data
+            self.socket.send(self.get_tcp_packet(amspacket))
+        except Exception as ex:
+            self.close()
+            raise PyadsException("Could not communicate with device: {ex}".format(ex=ex))
+
         # here's your packet
         return self.await_command_invoke()
 

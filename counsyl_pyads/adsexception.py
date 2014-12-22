@@ -1,4 +1,7 @@
-class AdsException(Exception):
+class PyadsException(Exception):
+    pass
+
+class AdsException(PyadsException):
 
     def __init__(self, code):
         self.code = code
