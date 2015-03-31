@@ -30,10 +30,7 @@ class AdsDatatype(object):
     def unpack(self, value):
         """Unpack a value using Python's struct.unpack()"""
         assert(self.pack_format is not None)
-        if(self.pack_format is not None):
-            return struct.unpack(self.pack_format, value)[0]
-        else:
-            return value
+        return struct.unpack(self.pack_format, value)[0]
 
     def unpack_from_buffer(self, byte_buffer, offset):
         assert(self.pack_format is not None)
