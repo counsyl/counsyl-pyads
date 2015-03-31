@@ -30,14 +30,31 @@ class AdsDatatype(object):
     def unpack(self, value):
         """Unpack a value using Python's struct.unpack()"""
         assert(self.pack_format is not None)
-        return struct.unpack(self.pack_format, value)[0]
+        # Note: "The result is a tuple even if it contains exactly one item."
+        # (https://docs.python.org/2/library/struct.html#struct.unpack)
+        # For single-valued data types, use AdsSingleValuedDatatype to get the
+        # first (and only) entry of the tuple after unpacking.
+        return struct.unpack(self.pack_format, value)
 
     def unpack_from_buffer(self, byte_buffer, offset):
         assert(self.pack_format is not None)
-        return struct.unpack_from(self.pack_format, byte_buffer, offset)[0]
+        return struct.unpack_from(self.pack_format, byte_buffer, offset)
 
 
-class AdsStringDatatype(AdsDatatype):
+class AdsSingleValuedDatatype(AdsDatatype):
+    """Represents Twincat's variable types that are NOT arrays."""
+    def unpack(self, *args, **kwargs):
+        unpacked_tuple = super(
+            AdsSingleValuedDatatype, self).unpack(*args, **kwargs)
+        return unpacked_tuple[0]
+
+    def unpack_from_buffer(self, *args, **kwargs):
+        unpacked_tuple = super(
+            AdsSingleValuedDatatype, self).unpack(*args, **kwargs)
+        return unpacked_tuple[0]
+
+
+class AdsStringDatatype(AdsSingleValuedDatatype):
     """Represents Twincat's variable length STRING data type."""
     def __init__(self, str_length=80):
         super(AdsStringDatatype, self).__init__(
@@ -68,7 +85,7 @@ class AdsStringDatatype(AdsDatatype):
         return value.decode(PYADS_ENCODING).strip(' \t\r\n\0')
 
 
-class AdsTimeDatatype(AdsDatatype):
+class AdsTimeDatatype(AdsSingleValuedDatatype):
     """Represents Twincat's TIME data type."""
     def __init__(self):
         # DATE, TIME, and DATE_AND_TIME are all handled as WORD by Twincat
@@ -116,7 +133,7 @@ class AdsTimeDatatype(AdsDatatype):
         return self.milliseconds_integer_to_time(value)
 
 
-class AdsDateDatatype(AdsDatatype):
+class AdsDateDatatype(AdsSingleValuedDatatype):
     def __init__(self):
         # DATE, TIME, and DATE_AND_TIME are all handled as WORD by Twincat
         super(AdsDateDatatype, self).__init__(byte_count=4, pack_format='I')
@@ -154,7 +171,7 @@ class AdsDateDatatype(AdsDatatype):
 
 
 # TODO
-class AdsDateAndTimeDatatype(AdsDatatype):
+class AdsDateAndTimeDatatype(AdsSingleValuedDatatype):
     def __init__(self):
         # DATE, TIME, and DATE_AND_TIME are all handled as WORD by Twincat
         super(AdsDateAndTimeDatatype, self).__init__(
@@ -173,22 +190,22 @@ class AdsDateAndTimeDatatype(AdsDatatype):
         pass
 
 
-BOOL = AdsDatatype(byte_count=1, pack_format='?')  # Bool
-BYTE = AdsDatatype(byte_count=1, pack_format='b')  # Int8
-WORD = AdsDatatype(byte_count=2, pack_format='H')  # UInt16
-DWORD = AdsDatatype(byte_count=4, pack_format='I')  # UInt32
-SINT = AdsDatatype(byte_count=1, pack_format='b')  # Int8 (Char)
-USINT = AdsDatatype(byte_count=1, pack_format='B')  # UInt8
-INT = AdsDatatype(byte_count=2, pack_format='h')  # Int16
+BOOL = AdsSingleValuedDatatype(byte_count=1, pack_format='?')  # Bool
+BYTE = AdsSingleValuedDatatype(byte_count=1, pack_format='b')  # Int8
+WORD = AdsSingleValuedDatatype(byte_count=2, pack_format='H')  # UInt16
+DWORD = AdsSingleValuedDatatype(byte_count=4, pack_format='I')  # UInt32
+SINT = AdsSingleValuedDatatype(byte_count=1, pack_format='b')  # Int8 (Char)
+USINT = AdsSingleValuedDatatype(byte_count=1, pack_format='B')  # UInt8
+INT = AdsSingleValuedDatatype(byte_count=2, pack_format='h')  # Int16
 INT16 = INT  # Int16
-UINT = AdsDatatype(byte_count=2, pack_format='H')  # UInt16
+UINT = AdsSingleValuedDatatype(byte_count=2, pack_format='H')  # UInt16
 UINT16 = UINT  # UInt16
-DINT = AdsDatatype(byte_count=4, pack_format='i')  # Int32
-UDINT = AdsDatatype(byte_count=4, pack_format='I')  # UInt32
+DINT = AdsSingleValuedDatatype(byte_count=4, pack_format='i')  # Int32
+UDINT = AdsSingleValuedDatatype(byte_count=4, pack_format='I')  # UInt32
 # LINT (64 Bit Integer, wird aktuell von TwinCAT nicht unterstuetzt)
 # ULINT (Unsigned 64 Bit Integer, wird aktuell von TwinCAT nicht unterstuetzt)
-REAL = AdsDatatype(byte_count=4, pack_format='f')  # float
-LREAL = AdsDatatype(byte_count=8, pack_format='d')  # double
+REAL = AdsSingleValuedDatatype(byte_count=4, pack_format='f')  # float
+LREAL = AdsSingleValuedDatatype(byte_count=8, pack_format='d')  # double
 STRING = lambda str_length: AdsStringDatatype(str_length)
 # Duration time. The most siginificant digit is one millisecond. The data type
 # is handled internally like DWORD.
