@@ -202,8 +202,8 @@ UINT = AdsSingleValuedDatatype(byte_count=2, pack_format='H')  # UInt16
 UINT16 = UINT  # UInt16
 DINT = AdsSingleValuedDatatype(byte_count=4, pack_format='i')  # Int32
 UDINT = AdsSingleValuedDatatype(byte_count=4, pack_format='I')  # UInt32
-# LINT (64 Bit Integer, wird aktuell von TwinCAT nicht unterstuetzt)
-# ULINT (Unsigned 64 Bit Integer, wird aktuell von TwinCAT nicht unterstuetzt)
+# LINT (64 Bit Integer, not supported by TwinCAT)
+# ULINT (Unsigned 64 Bit Integer, not supported by TwinCAT)
 REAL = AdsSingleValuedDatatype(byte_count=4, pack_format='f')  # float
 LREAL = AdsSingleValuedDatatype(byte_count=8, pack_format='d')  # double
 STRING = lambda str_length: AdsStringDatatype(str_length)
