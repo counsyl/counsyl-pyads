@@ -190,6 +190,17 @@ class AdsDateAndTimeDatatype(AdsSingleValuedDatatype):
         pass
 
 
+class AdsArrayDatatype(AdsDatatype):
+    def __init__(self, elements_data_type, elements_count):
+        total_byte_count = elements_count * elements_data_type.byte_count
+        super(AdsArrayDatatype, self).__init__(
+            byte_count=total_byte_count,
+            pack_format='{cnt}{fmt}'.format(
+                cnt=elements_count,
+                fmt=elements_data_type.pack_format,
+            ))
+
+
 BOOL = AdsSingleValuedDatatype(byte_count=1, pack_format='?')  # Bool
 BYTE = AdsSingleValuedDatatype(byte_count=1, pack_format='b')  # Int8
 WORD = AdsSingleValuedDatatype(byte_count=2, pack_format='H')  # UInt16
