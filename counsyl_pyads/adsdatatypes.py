@@ -18,10 +18,7 @@ class AdsDatatype(object):
     def pack(self, value):
         """Pack a value using Python's struct.pack()"""
         assert(self.pack_format is not None)
-        if(self.pack_format is not None):
-            return struct.pack(self.pack_format, value)
-        else:
-            return value
+        return struct.pack(self.pack_format, value)
 
     def pack_into_buffer(self, byte_buffer, offset, value):
         assert(self.pack_format is not None)
