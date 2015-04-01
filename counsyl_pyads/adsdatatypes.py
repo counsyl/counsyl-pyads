@@ -15,14 +15,14 @@ class AdsDatatype(object):
         self.byte_count = int(byte_count)
         self.pack_format = str(pack_format)
 
-    def pack(self, value):
+    def pack(self, values_list):
         """Pack a value using Python's struct.pack()"""
         assert(self.pack_format is not None)
-        return struct.pack(self.pack_format, value)
+        return struct.pack(self.pack_format, *values_list)
 
-    def pack_into_buffer(self, byte_buffer, offset, value):
+    def pack_into_buffer(self, byte_buffer, offset, values_list):
         assert(self.pack_format is not None)
-        struct.pack_into(self.pack_format, byte_buffer, offset, value)
+        struct.pack_into(self.pack_format, byte_buffer, offset, *values_list)
 
     def unpack(self, value):
         """Unpack a value using Python's struct.unpack()"""
@@ -40,14 +40,20 @@ class AdsDatatype(object):
 
 class AdsSingleValuedDatatype(AdsDatatype):
     """Represents Twincat's variable types that are NOT arrays."""
-    def unpack(self, *args, **kwargs):
-        unpacked_tuple = super(
-            AdsSingleValuedDatatype, self).unpack(*args, **kwargs)
+    def pack(self, value):
+        return super(AdsSingleValuedDatatype, self).pack([value])
+
+    def pack_into_buffer(self, byte_buffer, offset, value):
+        return super(AdsSingleValuedDatatype, self).pack(
+            byte_buffer, offset, [value])
+
+    def unpack(self, value):
+        unpacked_tuple = super(AdsSingleValuedDatatype, self).unpack(value)
         return unpacked_tuple[0]
 
-    def unpack_from_buffer(self, *args, **kwargs):
+    def unpack_from_buffer(self, byte_buffer, offset):
         unpacked_tuple = super(
-            AdsSingleValuedDatatype, self).unpack(*args, **kwargs)
+            AdsSingleValuedDatatype, self).unpack(byte_buffer, offset)
         return unpacked_tuple[0]
 
 
