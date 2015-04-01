@@ -194,7 +194,16 @@ class AdsDateAndTimeDatatype(AdsSingleValuedDatatype):
 
 
 class AdsArrayDatatype(AdsDatatype):
+    """Factory for data types represented as arrays in PLC code:
+    'ARRAY [0..3] OF UINT'.
+    """
     def __init__(self, elements_data_type, elements_count):
+        """Creates data type capable of packing and unpacking an array of
+        elements of a single-valued data type.
+        elements_data_type must be of type AdsSingleValuedDatatype
+        elements_count is the total number of elements in the array
+        """
+        assert(isinstance(elements_data_type, AdsSingleValuedDatatype))
         total_byte_count = elements_count * elements_data_type.byte_count
         super(AdsArrayDatatype, self).__init__(
             byte_count=total_byte_count,
@@ -231,7 +240,6 @@ DATE_AND_TIME = AdsDateAndTimeDatatype()
 DT = DATE_AND_TIME  # alias
 
 # TODO: Other data types seen in PLC output but not handled yet:
-# * 'ARRAY [0..3] OF UINT'
 # * TON
 # * FW_NOOFBYTE
 # * SCALING_BLOCK (custom data type used by @neldridge)
