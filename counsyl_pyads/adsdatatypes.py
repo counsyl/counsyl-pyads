@@ -195,21 +195,35 @@ class AdsDateAndTimeDatatype(AdsSingleValuedDatatype):
 
 class AdsArrayDatatype(AdsDatatype):
     """Factory for data types represented as arrays in PLC code:
-    'ARRAY [0..3] OF UINT'.
+    'ARRAY [0..3,1..4] OF UINT'.
     """
-    def __init__(self, elements_data_type, elements_count):
+    def __init__(self, data_type, dimensions=None):
         """Creates data type capable of packing and unpacking an array of
         elements of a single-valued data type.
-        elements_data_type must be of type AdsSingleValuedDatatype
-        elements_count is the total number of elements in the array
+        data_type must be of type AdsSingleValuedDatatype
+        dimensions is either the total number of elements in the array as
+            integer or a list of tuple of (inclusive) start and end indices in
+            the same order as they appear in the array definition in PLC code
         """
-        assert(isinstance(elements_data_type, AdsSingleValuedDatatype))
-        total_byte_count = elements_count * elements_data_type.byte_count
+        assert(isinstance(data_type, AdsSingleValuedDatatype))
+
+        # if the array is 1-dimensional and zero-indexed the dimensions
+        # argument could be an integer
+        if isinstance(dimensions, int):
+            dimensions = [(0, dimensions-1)]  # 0..n => n+1 elements!
+
+        # calculate the total number of elements in the array, keeping in mind
+        # that it could be multidimensional
+        total_element_count = reduce(
+            lambda x, y: x * (y[1]-y[0]+1),  # 1..4 => 4 elements!
+            dimensions, 1)
+
+        total_byte_count = total_element_count * data_type.byte_count
         super(AdsArrayDatatype, self).__init__(
             byte_count=total_byte_count,
             pack_format='{cnt}{fmt}'.format(
-                cnt=elements_count,
-                fmt=elements_data_type.pack_format,
+                cnt=total_element_count,
+                fmt=data_type.pack_format,
             ))
 
 
