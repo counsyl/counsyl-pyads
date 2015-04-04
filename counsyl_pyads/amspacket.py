@@ -4,9 +4,13 @@ from .adsutils import HexBlock
 
 
 class AmsPacket(object):
-    """A communications packet in the Ams protocol"""
+    """An incoming or outgoing communications packet in the Ams protocol"""
 
     def __init__(self, connection):
+        """Constructor for packet. Because the header information is specific
+        to an connection, the connection argument must be an instance of
+        AdsConnection.
+        """
         assert(isinstance(connection, AdsConnection))
         #the ams-net-id of the destination device (6 bytes)
         self.target_ams_id = connection.target_ams_id
@@ -35,11 +39,9 @@ class AmsPacket(object):
     Data = b''
     """the ads-data to transmit"""
 
-
     @staticmethod
     def ams_id_to_bytes(dotted_decimal):
         return map(int, dotted_decimal.split('.'))
-
 
     @staticmethod
     def ams_id_from_bytes(byteList):
@@ -49,7 +51,6 @@ class AmsPacket(object):
             words.append("%s" % ord(bt))
 
         return ".".join(words)
-
 
     def GetBinaryData(self):
         binary = BinaryParser()
@@ -76,7 +77,6 @@ class AmsPacket(object):
 
         # return byte buffer
         return binary.ByteData
-
 
     @staticmethod
     def from_binary_data(data = ''):
