@@ -157,7 +157,7 @@ class AdsClient(object):
         return self.execute(cmd)
 
     def read_state(self):
-        cmd = ReadStateCommand().execute(self)
+        cmd = ReadStateCommand()
         return self.execute(cmd)
 
     def write_control(self, adsState, deviceState, data=''):
