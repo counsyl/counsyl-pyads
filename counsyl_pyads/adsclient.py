@@ -209,12 +209,13 @@ class AdsClient(object):
     def read_by_name(self, var_name, ads_data_type):
         """Retrieves the current value of a symbol identified by symbol name.
 
-        This simply calls get_handle_by_name() first and then uses the  handle
-        to call read_by_handle().
-
-        var_name: must meet the same requirements as in get_handle_by_name,
-            i.e. be unicode or an ASCII-only str.
-        ads_data_type: must meet the same requirements as in read_by_handle.
+        var_name: is of type unicode (or str if only ASCII characters are used)
+            Both fully qualified PLC symbol names (e.g. including leading "."
+            for global variables) or PLC variable names (the name used in the
+            PLC program) are accepted. Names are NoT case-sensitive because the
+            PLC converts all variables to all-uppercase internally.
+        ads_data_type: The data type of the symbol must be specified as
+            AdsDatatype object.
         """
         assert(isinstance(ads_data_type, AdsDatatype))
         var_name_enc = var_name.encode(PYADS_ENCODING)
