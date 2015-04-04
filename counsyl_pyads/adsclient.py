@@ -172,7 +172,7 @@ class AdsClient(object):
 
     # BEGIN variable access methods
 
-    def get_symbol_handle(self, var_name):
+    def get_handle_by_name(self, var_name):
         """Retrieves the internal handle of a symbol identified by symbol name.
 
         var_name: is of type unicode (or str if only ASCII characters are used)
@@ -208,14 +208,14 @@ class AdsClient(object):
     def read_by_name(self, var_name, ads_data_type):
         """Retrieves the current value of a symbol identified by symbol name.
 
-        This simply calls get_symbol_handle() first and then uses the handle to
-        call read_by_handle().
+        This simply calls get_handle_by_name() first and then uses the  handle
+        to call read_by_handle().
 
-        var_name: must meet the same requirements as in get_symbol_handle, i.e.
-            be unicode or an ASCII-only str.
+        var_name: must meet the same requirements as in get_handle_by_name,
+            i.e. be unicode or an ASCII-only str.
         ads_data_type: must meet the same requirements as in read_by_handle.
         """
-        symbol_handle = self.get_symbol_handle(var_name)
+        symbol_handle = self.get_handle_by_name(var_name)
         return self.read_by_handle(symbol_handle, ads_data_type)
 
     def write_by_handle(self, symbolHandle, ads_data_type, value):
@@ -236,16 +236,16 @@ class AdsClient(object):
     def write_by_name(self, var_name, ads_data_type, value):
         """Sets the current value of a symbol identified by symbol name.
 
-        This simply calls get_symbol_handle() first and then uses the handle to
-        call write_by_handle().
+        This simply calls get_handle_by_name() first and then uses the handle
+        to call write_by_handle().
 
-        var_name: must meet the same requirements as in get_symbol_handle, i.e.
-            be unicode or an ASCII-only str.
+        var_name: must meet the same requirements as in get_handle_by_name,
+            i.e. be unicode or an ASCII-only str.
         ads_data_type: must meet the same requirements as in write_by_handle.
         value: must meet the requirements of the ads_data_type. For example,
             integer datatypes will require a number to be passed, etc.
         """
-        symbol_handle = self.get_symbol_handle(var_name)
+        symbol_handle = self.get_handle_by_name(var_name)
         self.write_by_handle(symbol_handle, ads_data_type, value)
 
     def get_symbols(self):
