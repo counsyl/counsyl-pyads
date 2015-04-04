@@ -36,6 +36,7 @@ class AdsResponse(object):
 
 class DeviceInfoCommand(AdsCommand):
     def __init__(self):
+        super(DeviceInfoCommand, self).__init__()
         self.command_id = 0x0001
 
     def CreateRequest(self):
@@ -83,6 +84,7 @@ class ReadCommand(AdsCommand):
             raise TypeError('indexOffset argument must be integer')
         if not isinstance(length, int):
             raise TypeError('length argument must be integer')
+        super(ReadCommand, self).__init__()
         self.command_id = 0x0002
         self.IndexGroup = indexGroup
         self.IndexOffset = indexOffset
@@ -115,6 +117,7 @@ class ReadResponse(AdsResponse):
 
 class ReadStateCommand(AdsCommand):
     def __init__(self):
+        super(ReadStateCommand, self).__init__()
         self.command_id = 0x0004
 
     def CreateRequest(self):
@@ -142,6 +145,7 @@ class ReadStateResponse(AdsResponse):
 
 class ReadWriteCommand(AdsCommand):
     def __init__(self, indexGroup, indexOffset, readLen, dataToWrite=''):
+        super(ReadWriteCommand, self).__init__()
         self.command_id = 0x0009
         self.IndexGroup = indexGroup
         self.IndexOffset = indexOffset
@@ -176,6 +180,7 @@ class ReadWriteResponse(AdsResponse):
 
 class WriteCommand(AdsCommand):
     def __init__(self, indexGroup, indexOffset, data):
+        super(WriteCommand, self).__init__()
         self.command_id = 0x0003
         self.IndexGroup = indexGroup
         self.IndexOffset = indexOffset
@@ -198,6 +203,7 @@ class WriteResponse(AdsResponse):
 
 class WriteControlCommand(AdsCommand):
     def __init__(self, adsState, deviceState, data=''):
+        super(WriteControlCommand, self).__init__()
         self.command_id = 0x0005
         self.AdsState = adsState
         self.DeviceState = deviceState
