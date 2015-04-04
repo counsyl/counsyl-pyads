@@ -12,8 +12,8 @@ from .adscommands import ReadStateCommand
 from .adscommands import ReadWriteCommand
 from .adscommands import WriteCommand
 from .adscommands import WriteControlCommand
-from .adscommands import ADSIGRP_IOIMAGE_RWIB
-from .adscommands import ADSIGRP_IOIMAGE_RWOB
+from .adsconstants import ADSIGRP_IOIMAGE_RWIB
+from .adsconstants import ADSIGRP_IOIMAGE_RWOB
 from .adsconstants import ADSIGRP_SYM_HNDBYNAME
 from .adsconstants import ADSIGRP_SYM_UPLOAD
 from .adsconstants import ADSIGRP_SYM_VALBYHND
