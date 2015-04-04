@@ -237,8 +237,6 @@ class AdsClient(object):
         comment = resp.data[comment_start_ptr:comment_end_ptr].decode(
             PYADS_ENCODING).strip(' \t\n\r\0')
 
-        print "about to generate ads symbol with symtype %s" % symtype
-
         return AdsSymbol(
             read_length, index_group, index_offset, name, symtype, comment)
 
