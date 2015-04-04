@@ -12,6 +12,11 @@ from .adscommands import ReadStateCommand
 from .adscommands import ReadWriteCommand
 from .adscommands import WriteCommand
 from .adscommands import WriteControlCommand
+from .adscommands import ADSIGRP_IOIMAGE_RWIB
+from .adscommands import ADSIGRP_IOIMAGE_RWOB
+from .adsconstants import ADSIGRP_SYM_HNDBYNAME
+from .adsconstants import ADSIGRP_SYM_UPLOAD
+from .adsconstants import ADSIGRP_SYM_VALBYHND
 from .adsdatatypes import AdsDatatype
 from .adsexception import AdsException
 from .adsexception import PyadsException
@@ -31,8 +36,8 @@ class AdsClient(object):
         self.ads_connection = ads_connection
         # default values
         self.debug = debug
-        self.ads_index_group_in = 0xF020
-        self.ads_index_group_out = 0xF030
+        self.ads_index_group_in = ADSIGRP_IOIMAGE_RWIB
+        self.ads_index_group_out = ADSIGRP_IOIMAGE_RWOB
         self.socket = None
         self._current_invoke_id = 0x8000
         self._current_packet = None
@@ -180,7 +185,7 @@ class AdsClient(object):
         # the plc
         var_name_enc = var_name.encode(PYADS_ENCODING)
         symbol = self.read_write(
-            indexGroup=0xF003,
+            indexGroup=ADSIGRP_SYM_HNDBYNAME,
             indexOffset=0x0000,
             readLen=4,
             dataToWrite=var_name_enc + '\x00')
@@ -194,7 +199,7 @@ class AdsClient(object):
         """
         assert(isinstance(ads_data_type, AdsDatatype))
         response = self.read(
-            indexGroup=0xF005,
+            indexGroup=ADSIGRP_SYM_VALBYHND,
             indexOffset=symbolHandle,
             length=ads_data_type.byte_count)
         data = response.data
@@ -224,7 +229,7 @@ class AdsClient(object):
         assert(isinstance(ads_data_type, AdsDatatype))
         value_raw = ads_data_type.pack(value)
         self.write(
-            indexGroup=0xF005,
+            indexGroup=ADSIGRP_SYM_VALBYHND,
             indexOffset=symbolHandle,
             data=value_raw)
 
@@ -246,7 +251,7 @@ class AdsClient(object):
     def get_symbols(self):
         # Figure out the length of the symbol table first
         resp1 = self.read(
-            indexGroup=0xF00F,
+            indexGroup=0xF00F,  # Not a documented constant
             indexOffset=0x0000,
             length=24)
         sym_count = struct.unpack("I", resp1.data[0:4])[0]
@@ -254,8 +259,8 @@ class AdsClient(object):
 
         # Get the symbol table
         resp2 = self.read(
-            indexGroup=0x0000F00B,
-            indexOffset=0x00000000,
+            indexGroup=ADSIGRP_SYM_UPLOAD,
+            indexOffset=0x0000,
             length=sym_list_length)
 
         ptr = 0
