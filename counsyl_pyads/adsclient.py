@@ -17,6 +17,7 @@ from .adscommands import ADSIGRP_IOIMAGE_RWOB
 from .adsconstants import ADSIGRP_SYM_HNDBYNAME
 from .adsconstants import ADSIGRP_SYM_UPLOAD
 from .adsconstants import ADSIGRP_SYM_VALBYHND
+from .adsconstants import ADSIGRP_SYM_VALBYNAME
 from .adsdatatypes import AdsDatatype
 from .adsexception import AdsException
 from .adsexception import PyadsException
@@ -215,8 +216,15 @@ class AdsClient(object):
             i.e. be unicode or an ASCII-only str.
         ads_data_type: must meet the same requirements as in read_by_handle.
         """
-        symbol_handle = self.get_handle_by_name(var_name)
-        return self.read_by_handle(symbol_handle, ads_data_type)
+        assert(isinstance(ads_data_type, AdsDatatype))
+        var_name_enc = var_name.encode(PYADS_ENCODING)
+        response = self.read_write(
+            indexGroup=ADSIGRP_SYM_VALBYNAME,
+            indexOffset=0x0000,
+            readLen=ads_data_type.byte_count,
+            dataToWrite=var_name_enc + '\x00')
+        data = response.data
+        return ads_data_type.unpack(data)
 
     def write_by_handle(self, symbolHandle, ads_data_type, value):
         """Retrieves the current value of a symbol identified by its handle.
