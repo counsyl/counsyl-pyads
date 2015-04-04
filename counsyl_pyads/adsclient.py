@@ -15,6 +15,7 @@ from .adscommands import WriteControlCommand
 from .adsconstants import ADSIGRP_IOIMAGE_RWIB
 from .adsconstants import ADSIGRP_IOIMAGE_RWOB
 from .adsconstants import ADSIGRP_SYM_HNDBYNAME
+from .adsconstants import ADSIGRP_SYM_INFOBYNAMEEX
 from .adsconstants import ADSIGRP_SYM_UPLOAD
 from .adsconstants import ADSIGRP_SYM_VALBYHND
 from .adsconstants import ADSIGRP_SYM_VALBYNAME
@@ -191,6 +192,55 @@ class AdsClient(object):
             readLen=4,
             dataToWrite=var_name_enc + '\x00')
         return struct.unpack("I", symbol.data)[0]
+
+    def get_info_by_name(self, var_name):
+        """Retrieves extended symbol information including data type and
+        comment for a symbol identified by symbol name.
+
+        var_name: is of type unicode (or str if only ASCII characters are used)
+            Both fully qualified PLC symbol names (e.g. including leading "."
+            for global variables) or PLC variable names (the name used in the
+            PLC program) are accepted. Names are NoT case-sensitive because the
+            PLC converts all variables to all-uppercase internally.
+        """
+        var_name_enc = var_name.encode(PYADS_ENCODING)
+        # Note: The length of the output varies based on the length of the data
+        # type description and length of the comment (which are specified in
+        # the first few bytes of the returned byte string. readLen is therefore
+        # set to the maximal value that does not result in an error. It's
+        # practical meaning seems to be more of a maxReadLen anyway, because
+        # the returned string is only as long as necessary to describe the
+        # symbol (instead of being zero-padded, for example).
+        resp = self.read_write(
+            indexGroup=ADSIGRP_SYM_INFOBYNAMEEX,
+            indexOffset=0x0000,
+            readLen=0xFFFF,
+            dataToWrite=var_name_enc + '\x00')
+
+        read_length = struct.unpack("I", resp.data[0:4])[0]
+        index_group = struct.unpack("I", resp.data[4:8])[0]
+        index_offset = struct.unpack("I", resp.data[8:12])[0]
+        name_length = struct.unpack("H", resp.data[24:26])[0]
+        type_length = struct.unpack("H", resp.data[26:28])[0]
+        comment_length = struct.unpack("H", resp.data[28:30])[0]
+
+        name_start_ptr = 30
+        name_end_ptr = name_start_ptr + name_length
+        type_start_ptr = name_end_ptr + 1
+        type_end_ptr = type_start_ptr + type_length
+        comment_start_ptr = type_end_ptr + 1
+        comment_end_ptr = comment_start_ptr + comment_length
+
+        name = resp.data[name_start_ptr:name_end_ptr].decode(
+            PYADS_ENCODING).strip(' \t\n\r\0')
+        symtype = resp.data[type_start_ptr:type_end_ptr]
+        comment = resp.data[comment_start_ptr:comment_end_ptr].decode(
+            PYADS_ENCODING).strip(' \t\n\r\0')
+
+        print "about to generate ads symbol with symtype %s" % symtype
+
+        return AdsSymbol(
+            read_length, index_group, index_offset, name, symtype, comment)
 
     def read_by_handle(self, symbolHandle, ads_data_type):
         """Retrieves the current value of a symbol identified by its handle.
