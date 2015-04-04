@@ -9,9 +9,7 @@ from .adsexception import AdsException
 
 class AdsCommand(object):
     def __init__(self):
-        pass
-
-    CommandID = 0
+        self.command_id = 0
 
     def CreateRequest(self):
         raise NotImplementedError()
@@ -21,7 +19,7 @@ class AdsCommand(object):
 
     def to_ams_packet(self, adsConnection):
         packet = AmsPacket(adsConnection)
-        packet.CommandID = self.CommandID
+        packet.command_id = self.command_id
         packet.StateFlags = 0x0004
         packet.Data = self.CreateRequest()
 
@@ -38,7 +36,7 @@ class AdsResponse(object):
 
 class DeviceInfoCommand(AdsCommand):
     def __init__(self):
-        self.CommandID = 0x0001
+        self.command_id = 0x0001
 
     def CreateRequest(self):
         return b''
@@ -85,7 +83,7 @@ class ReadCommand(AdsCommand):
             raise TypeError('indexOffset argument must be integer')
         if not isinstance(length, int):
             raise TypeError('length argument must be integer')
-        self.CommandID = 0x0002
+        self.command_id = 0x0002
         self.IndexGroup = indexGroup
         self.IndexOffset = indexOffset
         self.Length = length
@@ -117,7 +115,7 @@ class ReadResponse(AdsResponse):
 
 class ReadStateCommand(AdsCommand):
     def __init__(self):
-        self.CommandID = 0x0004
+        self.command_id = 0x0004
 
     def CreateRequest(self):
         return ''
@@ -144,7 +142,7 @@ class ReadStateResponse(AdsResponse):
 
 class ReadWriteCommand(AdsCommand):
     def __init__(self, indexGroup, indexOffset, readLen, dataToWrite=''):
-        self.CommandID = 0x0009
+        self.command_id = 0x0009
         self.IndexGroup = indexGroup
         self.IndexOffset = indexOffset
         self.ReadLen = readLen
@@ -178,7 +176,7 @@ class ReadWriteResponse(AdsResponse):
 
 class WriteCommand(AdsCommand):
     def __init__(self, indexGroup, indexOffset, data):
-        self.CommandID = 0x0003
+        self.command_id = 0x0003
         self.IndexGroup = indexGroup
         self.IndexOffset = indexOffset
         self.Data = data
@@ -200,7 +198,7 @@ class WriteResponse(AdsResponse):
 
 class WriteControlCommand(AdsCommand):
     def __init__(self, adsState, deviceState, data=''):
-        self.CommandID = 0x0005
+        self.command_id = 0x0005
         self.AdsState = adsState
         self.DeviceState = deviceState
         self.Data = data

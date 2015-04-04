@@ -17,8 +17,8 @@ class AmsPacket(object):
         # the ams-port of the sender (2 bytes, UInt16)
         self.source_ams_port = connection.source_ams_port
 
-    CommandID = 0
-    """command-id (2 bytes, UInt16)"""
+        # command-id (2 bytes, UInt16)
+        self.command_id = 0
 
     StateFlags = 0
     """state flags, i.e. 0x0004 for request. (2 bytes, UInt16)"""
@@ -63,7 +63,7 @@ class AmsPacket(object):
         binary.WriteUInt16(self.source_ams_port)
 
         # command id, state flags & data length
-        binary.WriteUInt16(self.CommandID)
+        binary.WriteUInt16(self.command_id)
         binary.WriteUInt16(self.StateFlags)
         binary.WriteUInt32(len(self.Data))
 
@@ -95,7 +95,7 @@ class AmsPacket(object):
 
         packet = AmsPacket(ads_conn)
 
-        packet.CommandID = binary.ReadUInt16()
+        packet.command_id = binary.ReadUInt16()
         packet.StateFlags = binary.ReadUInt16()
         packet.Length = binary.ReadUInt32()
         packet.ErrorCode = binary.ReadUInt32()
@@ -104,11 +104,10 @@ class AmsPacket(object):
 
         return packet
 
-
     def __str__(self):
         result = "%s:%s --> " % (self.source_ams_id, self.source_ams_port)
         result += "%s:%s\n" % (self.target_ams_id, self.target_ams_port)
-        result += "Command ID:  %s\n" % self.CommandID
+        result += "Command ID:  %s\n" % self.command_id
         result += "Invoke ID:   %s\n" % self.InvokeID
         result += "State Flags: %s\n" % self.StateFlags
         result += "Data Length: %s\n" % self.Length
