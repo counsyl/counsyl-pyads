@@ -6,18 +6,17 @@ import threading
 import time
 
 from . import PYADS_ENCODING
-from .amspacket import AmsPacket
-from .adsdatatypes import AdsDatatype
-from .adsexception import AdsException
-from .adsexception import PyadsException
-from .adssymbol import AdsSymbol
-
 from .adscommands import DeviceInfoCommand
 from .adscommands import ReadCommand
 from .adscommands import ReadStateCommand
 from .adscommands import ReadWriteCommand
 from .adscommands import WriteCommand
 from .adscommands import WriteControlCommand
+from .adsdatatypes import AdsDatatype
+from .adsexception import AdsException
+from .adsexception import PyadsException
+from .adssymbol import AdsSymbol
+from .amspacket import AmsPacket
 
 
 ADS_CHUNK_SIZE_DEFAULT = 1024
