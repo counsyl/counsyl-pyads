@@ -20,15 +20,15 @@ class AdsCommand(object):
     def to_ams_packet(self, adsConnection):
         packet = AmsPacket(adsConnection)
         packet.command_id = self.command_id
-        packet.StateFlags = 0x0004
-        packet.Data = self.CreateRequest()
+        packet.state_flags = 0x0004
+        packet.data = self.CreateRequest()
 
         return packet
 
 
 class AdsResponse(object):
     def __init__(self, responseAmsPacket):
-        self.Error = struct.unpack_from('I', responseAmsPacket.Data)[0]
+        self.Error = struct.unpack_from('I', responseAmsPacket.data)[0]
 
         if (self.Error > 0):
             raise AdsException(self.Error)
@@ -51,19 +51,19 @@ class DeviceInfoResponse(AdsResponse):
         super(DeviceInfoResponse, self).__init__(responseAmsPacket)
 
         self.MajorVersion = struct.unpack_from(
-            'B', responseAmsPacket.Data, 4)[0]
+            'B', responseAmsPacket.data, 4)[0]
         self.MinorVersion = struct.unpack_from(
-            'B', responseAmsPacket.Data, 5)[0]
+            'B', responseAmsPacket.data, 5)[0]
         self.Build = struct.unpack_from(
-            'H', responseAmsPacket.Data, 6)[0]
+            'H', responseAmsPacket.data, 6)[0]
 
         deviceNameEnd = 16
         for i in range(8, 24):
-            if ord(responseAmsPacket.Data[i]) == 0:
+            if ord(responseAmsPacket.data[i]) == 0:
                 deviceNameEnd = i
                 break
 
-        deviceNameRaw = responseAmsPacket.Data[8:deviceNameEnd]
+        deviceNameRaw = responseAmsPacket.data[8:deviceNameEnd]
         self.DeviceName = deviceNameRaw.decode(
             PYADS_ENCODING).strip(' \t\n\r\0')
 
@@ -102,17 +102,17 @@ class ReadResponse(AdsResponse):
     def __init__(self, responseAmsPacket):
         super(ReadResponse, self).__init__(responseAmsPacket)
 
-        self.Length = struct.unpack_from('I', responseAmsPacket.Data, 4)[0]
-        self.Data = responseAmsPacket.Data[8:]
+        self.Length = struct.unpack_from('I', responseAmsPacket.data, 4)[0]
+        self.data = responseAmsPacket.data[8:]
 
     def CreateBuffer(self):
-        return ctypes.create_string_buffer(self.Data, len(self.Data))
+        return ctypes.create_string_buffer(self.data, len(self.data))
 
     def __str__(self):
         return unicode(self).encode('utf-8')
 
     def __unicode__(self):
-        return u"AdsReadResponse:\n%s" % HexBlock(self.Data)
+        return u"AdsReadResponse:\n%s" % HexBlock(self.data)
 
 
 class ReadStateCommand(AdsCommand):
@@ -132,9 +132,9 @@ class ReadStateResponse(AdsResponse):
         super(ReadStateResponse, self).__init__(responseAmsPacket)
 
         self.AdsState = struct.unpack_from(
-            'H', responseAmsPacket.Data, 4)[0]
+            'H', responseAmsPacket.data, 4)[0]
         self.DeviceState = struct.unpack_from(
-            'H', responseAmsPacket.Data, 6)[0]
+            'H', responseAmsPacket.data, 6)[0]
 
     def __str__(self):
         return unicode(self).encode('utf-8')
@@ -150,12 +150,12 @@ class ReadWriteCommand(AdsCommand):
         self.IndexGroup = indexGroup
         self.IndexOffset = indexOffset
         self.ReadLen = readLen
-        self.Data = dataToWrite
+        self.data = dataToWrite
 
     def CreateRequest(self):
         result = struct.pack('<II', self.IndexGroup, self.IndexOffset)
-        result += struct.pack('<II', self.ReadLen, len(self.Data))
-        result += self.Data
+        result += struct.pack('<II', self.ReadLen, len(self.data))
+        result += self.data
         return result
 
     def CreateResponse(self, responsePacket):
@@ -166,8 +166,8 @@ class ReadWriteResponse(AdsResponse):
     def __init__(self, responseAmsPacket):
         super(ReadWriteResponse, self).__init__(responseAmsPacket)
 
-        self.Length = struct.unpack_from('I', responseAmsPacket.Data, 4)[0]
-        self.Data = responseAmsPacket.Data[8:]
+        self.Length = struct.unpack_from('I', responseAmsPacket.data, 4)[0]
+        self.data = responseAmsPacket.data[8:]
 
     def __str__(self):
         return unicode(self).encode('utf-8')
@@ -175,7 +175,7 @@ class ReadWriteResponse(AdsResponse):
     def __unicode__(self):
         return (
             u"AdsReadWriteResponse:\n%s" %
-            AmsPacket.GetHexStringBlock(self.Data))
+            AmsPacket.GetHexStringBlock(self.data))
 
 
 class WriteCommand(AdsCommand):
@@ -184,12 +184,12 @@ class WriteCommand(AdsCommand):
         self.command_id = 0x0003
         self.IndexGroup = indexGroup
         self.IndexOffset = indexOffset
-        self.Data = data
+        self.data = data
 
     def CreateRequest(self):
         result = struct.pack(
-            '<III', self.IndexGroup, self.IndexOffset, len(self.Data))
-        result += self.Data
+            '<III', self.IndexGroup, self.IndexOffset, len(self.data))
+        result += self.data
         return result
 
     def CreateResponse(self, responsePacket):
@@ -207,12 +207,12 @@ class WriteControlCommand(AdsCommand):
         self.command_id = 0x0005
         self.AdsState = adsState
         self.DeviceState = deviceState
-        self.Data = data
+        self.data = data
 
     def CreateRequest(self):
         result = struct.pack(
-            '<HHI', self.AdsState, self.DeviceState, len(self.Data))
-        result += self.Data
+            '<HHI', self.AdsState, self.DeviceState, len(self.data))
+        result += self.data
         return result
 
     def CreateResponse(self, responsePacket):

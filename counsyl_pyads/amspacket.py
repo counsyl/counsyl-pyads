@@ -12,7 +12,7 @@ class AmsPacket(object):
         AdsConnection.
         """
         assert(isinstance(connection, AdsConnection))
-        #the ams-net-id of the destination device (6 bytes)
+        # the ams-net-id of the destination device (6 bytes)
         self.target_ams_id = connection.target_ams_id
         # the ams-port to use (2 bytes, UInt16)
         self.target_ams_port = connection.target_ams_port
@@ -23,21 +23,16 @@ class AmsPacket(object):
 
         # command-id (2 bytes, UInt16)
         self.command_id = 0
-
-    StateFlags = 0
-    """state flags, i.e. 0x0004 for request. (2 bytes, UInt16)"""
-
-    Length = 0
-    """length of data (4 bytes, UInt32)"""
-
-    ErrorCode = 0
-    """error code of ads-response (4 bytes, UInt32)"""
-
-    InvokeID = 0
-    """free choosable number to identify request<->response  (4 bytes, UInt32)"""
-
-    Data = b''
-    """the ads-data to transmit"""
+        # state flags, i.e. 0x0004 for request. (2 bytes, UInt16)
+        self.state_flags = 0
+        # length of data (4 bytes, UInt32)
+        self.Length = 0
+        # error code of ads-response (4 bytes, UInt32)
+        self.error_code = 0
+        # arbitrary number to identify request<->response (4 bytes, UInt32)
+        self.invoke_id = 0
+        # the ADS-data to transmit as payload of the AMS packet
+        self.data = b''
 
     @staticmethod
     def ams_id_to_bytes(dotted_decimal):
@@ -65,21 +60,21 @@ class AmsPacket(object):
 
         # command id, state flags & data length
         binary.WriteUInt16(self.command_id)
-        binary.WriteUInt16(self.StateFlags)
-        binary.WriteUInt32(len(self.Data))
+        binary.WriteUInt16(self.state_flags)
+        binary.WriteUInt32(len(self.data))
 
         # error code & invoke id
-        binary.WriteUInt32(self.ErrorCode)
-        binary.WriteUInt32(self.InvokeID)
+        binary.WriteUInt32(self.error_code)
+        binary.WriteUInt32(self.invoke_id)
 
         # last but not least - the data
-        binary.WriteBytes(self.Data)
+        binary.WriteBytes(self.data)
 
         # return byte buffer
         return binary.ByteData
 
     @staticmethod
-    def from_binary_data(data = ''):
+    def from_binary_data(data=''):
         binary = BinaryParser(data)
 
         # ams target & source
@@ -96,11 +91,11 @@ class AmsPacket(object):
         packet = AmsPacket(ads_conn)
 
         packet.command_id = binary.ReadUInt16()
-        packet.StateFlags = binary.ReadUInt16()
+        packet.state_flags = binary.ReadUInt16()
         packet.Length = binary.ReadUInt32()
-        packet.ErrorCode = binary.ReadUInt32()
-        packet.InvokeID = binary.ReadUInt32()
-        packet.Data = binary.ByteData[32:]
+        packet.error_code = binary.ReadUInt32()
+        packet.invoke_id = binary.ReadUInt32()
+        packet.data = binary.ByteData[32:]
 
         return packet
 
@@ -108,14 +103,14 @@ class AmsPacket(object):
         result = "%s:%s --> " % (self.source_ams_id, self.source_ams_port)
         result += "%s:%s\n" % (self.target_ams_id, self.target_ams_port)
         result += "Command ID:  %s\n" % self.command_id
-        result += "Invoke ID:   %s\n" % self.InvokeID
-        result += "State Flags: %s\n" % self.StateFlags
+        result += "Invoke ID:   %s\n" % self.invoke_id
+        result += "State Flags: %s\n" % self.state_flags
         result += "Data Length: %s\n" % self.Length
-        result += "Error:       %s\n" % self.ErrorCode
+        result += "Error:       %s\n" % self.error_code
 
-        if (len(self.Data) == 0):
+        if (len(self.data) == 0):
             result += "Packet contains no data.\n"
         else:
-            result += "Data:\n%s\n" % HexBlock(self.Data)
+            result += "Data:\n%s\n" % HexBlock(self.data)
 
         return result

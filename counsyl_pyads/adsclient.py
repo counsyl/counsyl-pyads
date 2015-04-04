@@ -40,7 +40,7 @@ class AdsClient(object):
         # event to signal shutdown to async reader thread
         self._stop_reading = threading.Event()
 
-        # lock to ensure only one command is executed 
+        # lock to ensure only one command is executed
         # (sent to the PLC) at a time:
         self._ads_lock = threading.Lock()
 
@@ -93,7 +93,7 @@ class AdsClient(object):
             if ready[0] and self.is_connected:
                 try:
                     newPacket = self.read_ams_packet_from_socket()
-                    if (newPacket.InvokeID == self._current_invoke_id):
+                    if (newPacket.invoke_id == self._current_invoke_id):
                         self._current_packet = newPacket
                     else:
                         logger.debug("Packet dropped: %s" % newPacket)
@@ -125,12 +125,12 @@ class AdsClient(object):
         with self._ads_lock:
             # create packet
             packet = command.to_ams_packet(self.ads_connection)
-            
+
             # send to client
             responsePacket = self.send_and_recv(packet)
             # check for error
-            if (responsePacket.ErrorCode > 0):
-                raise AdsException(responsePacket.ErrorCode)
+            if (responsePacket.error_code > 0):
+                raise AdsException(responsePacket.error_code)
 
             # return response object
             result = command.CreateResponse(responsePacket)
@@ -184,7 +184,7 @@ class AdsClient(object):
             indexOffset=0x0000,
             readLen=4,
             dataToWrite=var_name_enc + '\x00')
-        return struct.unpack("I", symbol.Data)[0]
+        return struct.unpack("I", symbol.data)[0]
 
     def read_by_handle(self, symbolHandle, ads_data_type):
         """Retrieves the current value of a symbol identified by its handle.
@@ -197,7 +197,7 @@ class AdsClient(object):
             indexGroup=0xF005,
             indexOffset=symbolHandle,
             length=ads_data_type.byte_count)
-        data = response.Data
+        data = response.data
         return ads_data_type.unpack(data)
 
     def read_by_name(self, var_name, ads_data_type):
@@ -249,8 +249,8 @@ class AdsClient(object):
             indexGroup=0xF00F,
             indexOffset=0x0000,
             length=24)
-        sym_count = struct.unpack("I", resp1.Data[0:4])[0]
-        sym_list_length = struct.unpack("I", resp1.Data[4:8])[0]
+        sym_count = struct.unpack("I", resp1.data[0:4])[0]
+        sym_list_length = struct.unpack("I", resp1.data[4:8])[0]
 
         # Get the symbol table
         resp2 = self.read(
@@ -261,12 +261,12 @@ class AdsClient(object):
         ptr = 0
         symbols = []
         for idx in xrange(sym_count):
-            read_length = struct.unpack("I", resp2.Data[ptr+0:ptr+4])[0]
-            index_group = struct.unpack("I", resp2.Data[ptr+4:ptr+8])[0]
-            index_offset = struct.unpack("I", resp2.Data[ptr+8:ptr+12])[0]
-            name_length = struct.unpack("H", resp2.Data[ptr+24:ptr+26])[0]
-            type_length = struct.unpack("H", resp2.Data[ptr+26:ptr+28])[0]
-            comment_length = struct.unpack("H", resp2.Data[ptr+28:ptr+30])[0]
+            read_length = struct.unpack("I", resp2.data[ptr+0:ptr+4])[0]
+            index_group = struct.unpack("I", resp2.data[ptr+4:ptr+8])[0]
+            index_offset = struct.unpack("I", resp2.data[ptr+8:ptr+12])[0]
+            name_length = struct.unpack("H", resp2.data[ptr+24:ptr+26])[0]
+            type_length = struct.unpack("H", resp2.data[ptr+26:ptr+28])[0]
+            comment_length = struct.unpack("H", resp2.data[ptr+28:ptr+30])[0]
 
             name_start_ptr = ptr + 30
             name_end_ptr = name_start_ptr + name_length
@@ -275,10 +275,10 @@ class AdsClient(object):
             comment_start_ptr = type_end_ptr + 1
             comment_end_ptr = comment_start_ptr + comment_length
 
-            name = resp2.Data[name_start_ptr:name_end_ptr].decode(
+            name = resp2.data[name_start_ptr:name_end_ptr].decode(
                 PYADS_ENCODING).strip(' \t\n\r\0')
-            symtype = resp2.Data[type_start_ptr:type_end_ptr]
-            comment = resp2.Data[comment_start_ptr:comment_end_ptr].decode(
+            symtype = resp2.data[type_start_ptr:type_end_ptr]
+            comment = resp2.data[comment_start_ptr:comment_end_ptr].decode(
                 PYADS_ENCODING).strip(' \t\n\r\0')
 
             ptr = comment_end_ptr + 1
@@ -326,7 +326,7 @@ class AdsClient(object):
             self.connect()
         # prepare packet with invoke id
         self.prepare_command_invoke(amspacket)
-        
+
         try:
             # send tcp-header and ams-data
             self.socket.send(self.get_tcp_packet(amspacket))
@@ -343,7 +343,7 @@ class AdsClient(object):
         else:
             self._current_invoke_id = 0x8000
         self._current_packet = None
-        amspacket.InvokeID = self._current_invoke_id
+        amspacket.invoke_id = self._current_invoke_id
         if self.debug:
             logger.debug(">>> sending ams-packet:")
             logger.debug(amspacket)
