@@ -3,10 +3,12 @@
 A documentation of Twincat data types is available at
 http://infosys.beckhoff.com/content/1033/tcplccontrol/html/tcplcctrl_plc_data_types_overview.htm?id=20295  # nopep8
 """
+from copy import copy
 import datetime
 import struct
 
 from . import PYADS_ENCODING
+from .adsexception import PyadsTypeError
 
 
 class AdsDatatype(object):
@@ -199,7 +201,10 @@ class AdsArrayDatatype(AdsDatatype):
     """
     def __init__(self, data_type, dimensions=None):
         """Creates data type capable of packing and unpacking an array of
-        elements of a single-valued data type.
+        elements of a single-valued data type. The Python representation of
+        the array is as a dict because PLC arrays are arbitrarily indexed.
+        Multidimensional PLC arrays are represented as nested dicts.
+
         data_type must be of type AdsSingleValuedDatatype
         dimensions is either the total number of elements in the array as
             integer or a list of tuple of (inclusive) start and end indices in
@@ -210,23 +215,110 @@ class AdsArrayDatatype(AdsDatatype):
         # if the array is 1-dimensional and zero-indexed the dimensions
         # argument could be an integer
         if isinstance(dimensions, int):
-            dimensions = [(0, dimensions-1)]  # 0..n => n+1 elements!
+            self.dimensions = [(0, dimensions-1)]  # 0..n => n+1 elements!
+        elif isinstance(dimensions, list):
+            self.dimensions = dimensions
+        else:
+            raise TypeError(
+                "The dimensions parameter must be either int or a list of "
+                "tuples. %s was given." % type(dimensions))
 
         # calculate the total number of elements in the array, keeping in mind
         # that it could be multidimensional
-        total_element_count = reduce(
+        self.total_element_count = reduce(
             lambda x, y: x * (y[1]-y[0]+1),  # 1..4 => 4 elements!
             dimensions, 1)
 
-        total_byte_count = total_element_count * data_type.byte_count
+        total_byte_count = self.total_element_count * data_type.byte_count
         super(AdsArrayDatatype, self).__init__(
             byte_count=total_byte_count,
             pack_format='{cnt}{fmt}'.format(
-                cnt=total_element_count,
+                cnt=self.total_element_count,
                 fmt=data_type.pack_format,
             ))
 
+    def _dict_to_flat_list(self, dict_, dims):
+        """Recursively checks if a dict's keys match the array specification.
 
+        For example, an integer array specified as [(0, 2), (7,9)] is correctly
+        represented by a dict of this structure (all values are chosen as 0):
+        {0: {7: 0, 8: 0, 9: 0}, 1: {7: 0, 8: 0, 9: 0}, 2: {7: 0, 8: 0, 9: 0}}
+        """
+        # initialize the flattened list as empty
+        flat = []
+        try:
+            # operate on a local copy of dims list to not modify the version
+            # used by the calling function (which in many cases will be another
+            # branch of the recursive tree)
+            dims = copy(dims)
+            # pop from the left to get the index bounds of the dimension of the
+            # array we are currently validating, while shortening dims for
+            # validation of the next dimension
+            cur_dims = dims.pop(0)
+            # perform validation for current dimension
+            indices = sorted(dict_.keys())
+            if min(indices) != cur_dims[0]:
+                raise PyadsTypeError()  # lower bound doesn't match
+            if max(indices) != cur_dims[1]:
+                raise PyadsTypeError()  # upper bound doesn't match
+            if len(indices) != max(indices) - min(indices) + 1:
+                raise PyadsTypeError()  # not all inner indices are present
+            # can't iterate over dict_.values(), they might be out of order
+            # iterate over sorted indices instead
+            for idx in indices:
+                if isinstance(dict_[idx], dict):
+                    flat += self._dict_to_flat_list(dict_[idx], dims)
+                else:
+                    flat.append(dict_[idx])
+        except AttributeError:
+            raise PyadsTypeError()  # sth that should be a dict isn't
+        return flat
+
+    def pack(self, value):
+        """Packs the Python representation of the array into a binary string.
+
+        As a convenience, both the dict representation returned by unpack() and
+        a flattened list are accepted as inputs.
+        """
+        # The exception message for incorrect arguments can get complex here,
+        # pre-assemble a base message first, then modify it for each specific
+        # exception.
+        dims = len(self.dimensions)
+        exception_str = """The Python representation of this PLC array variable
+        must either be a list of length {list_len} or a {nested} dict with keys
+        {dict_keys}. %s""".format(
+            list_len=self.total_element_count,
+            nested="%d-fold nested " % dims if dims > 1 else "",
+            dict_keys=','.join(["%d..%d" % bnds for bnds in self.dimensions]))
+
+        # Check the value argument for correct type. If it's a dict, check the
+        # dict keys against the array dimensions. After all checks, convert the
+        # input value into a flattened array.
+        if isinstance(value, list):
+            # Check for correct list length
+            if len(value) != self.total_element_count:
+                raise PyadsTypeError(
+                    exception_str %
+                    "The supplied list has %s elements." %
+                    len(value))
+            # Nothing else to do in this branch, the array is already a
+            # flattened list.
+            flat = value
+        elif isinstance(value, dict):
+            # Recursively flatten the dict into a list
+            try:
+                flat = self._dict_to_flat_list(value, self.dimensions)
+            except PyadsTypeError as ex:
+                # TODO: make it so that the PyadsTypeError arrives with a
+                # useful messge to concatenate to the default.
+                raise PyadsTypeError(
+                    exception_str %
+                    "The supplied dict has incorrect dimensions.")
+        else:
+            raise PyadsTypeError(
+                exception_str % "The value must be a list or a dict.")
+
+        return super(AdsArrayDatatype, self).pack(flat)
 BOOL = AdsSingleValuedDatatype(byte_count=1, pack_format='?')  # Bool
 BYTE = AdsSingleValuedDatatype(byte_count=1, pack_format='b')  # Int8
 WORD = AdsSingleValuedDatatype(byte_count=2, pack_format='H')  # UInt16
