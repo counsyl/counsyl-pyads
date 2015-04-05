@@ -3,6 +3,7 @@
 A documentation of Twincat data types is available at
 http://infosys.beckhoff.com/content/1033/tcplccontrol/html/tcplcctrl_plc_data_types_overview.htm?id=20295  # nopep8
 """
+from collections import Sequence
 from copy import copy
 import datetime
 import struct
@@ -280,6 +281,42 @@ class AdsArrayDatatype(AdsDatatype):
             raise PyadsTypeError()  # sth that should be a dict isn't
         return flat
 
+    def _flat_list_to_dict(self, flat, dims=None):
+        """Inverse of _dict_to_flat_list: Recursively builds a dict from a flat
+        list using the array spec.
+
+        If dims is not provided, self.dimensions is used. When the function
+        calls itself, it passes a truncated copy its own version of dims.
+        """
+        if not isinstance(flat, Sequence):
+            raise PyadsTypeError(
+                "Array data must be a sequence (list, tuple, string), but %s "
+                "was given." % type(flat))
+        dict_ = {}
+        # operate on a local copy of dims list to not modify the version
+        # used by the calling function (which in many cases will be another
+        # branch of the recursive tree)
+        dims = copy(dims or self.dimensions)
+        # pop from the left to get the index bounds of the array dimension we
+        # are currently building, while shortening dims for the next dimension
+        cur_dims = dims.pop(0)
+        # Recursively step through the array specification (in dims) and pop
+        # elements from the flat list into the dict.
+        assert(cur_dims[0] <= cur_dims[1])
+        for idx in range(cur_dims[0], cur_dims[1]+1):
+            if len(dims) > 0:
+                dict_[idx] = self._flat_list_to_dict(flat, dims)
+            else:
+                # As opposed to the dims array, here we actually want to modify
+                # the list globally across all branches of the recursion.
+                try:
+                    dict_[idx] = flat.pop(0)
+                except IndexError:
+                    raise PyadsTypeError(
+                        'The array data from the PLC has fewer elements than '
+                        'required by the array specification.')
+        return dict_
+
     def pack(self, value):
         """Packs the Python representation of the array into a binary string.
 
@@ -325,6 +362,12 @@ class AdsArrayDatatype(AdsDatatype):
                 exception_str % "The value must be a list or a dict.")
 
         return super(AdsArrayDatatype, self).pack(flat)
+
+    def unpack(self, value):
+        flat = super(AdsArrayDatatype, self).unpack(value)
+        return self._flat_list_to_dict(flat)
+
+
 BOOL = AdsSingleValuedDatatype(byte_count=1, pack_format='?')  # Bool
 BYTE = AdsSingleValuedDatatype(byte_count=1, pack_format='b')  # Int8
 WORD = AdsSingleValuedDatatype(byte_count=2, pack_format='H')  # UInt16
