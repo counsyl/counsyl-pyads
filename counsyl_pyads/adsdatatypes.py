@@ -3,6 +3,7 @@
 A documentation of Twincat data types is available at
 http://infosys.beckhoff.com/content/1033/tcplccontrol/html/tcplcctrl_plc_data_types_overview.htm?id=20295  # nopep8
 """
+from collections import OrderedDict
 from collections import Sequence
 from copy import copy
 import datetime
@@ -294,7 +295,7 @@ class AdsArrayDatatype(AdsDatatype):
                 "was given." % type(flat))
         # Ensure flat is mutable (struct.unpack returns a tuple)
         flat = list(flat)
-        dict_ = {}
+        dict_ = OrderedDict()
         # operate on a local copy of dims list to not modify the version
         # used by the calling function (which in many cases will be another
         # branch of the recursive tree)
