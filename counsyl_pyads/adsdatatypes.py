@@ -237,12 +237,18 @@ class AdsArrayDatatype(AdsDatatype):
                 fmt=data_type.pack_format,
             ))
 
-    def _dict_to_flat_list(self, dict_, dims):
-        """Recursively checks if a dict's keys match the array specification.
+    def _dict_to_flat_list(self, dict_, dims=None):
+        """Recursively builds a flat list from a dict while checking if the
+        dict's keys match the array specification. The returned data type is
+        tuple.
 
         For example, an integer array specified as [(0, 2), (7,9)] is correctly
-        represented by a dict of this structure (all values are chosen as 0):
-        {0: {7: 0, 8: 0, 9: 0}, 1: {7: 0, 8: 0, 9: 0}, 2: {7: 0, 8: 0, 9: 0}}
+        represented by a dict of this structure:
+        {0: {7: a, 8: b, 9: c}, 1: {7: d, 8: e, 9: f}, 2: {7: g, 8: h, 9: i}}
+        or this list/tuple: [a, b, c, d, e, f, g, h, i]
+
+        If dims is not provided, self.dimensions is used. When the function
+        calls itself, it passes a truncated copy its own version of dims.
         """
         # initialize the flattened list as empty
         flat = []
@@ -250,7 +256,7 @@ class AdsArrayDatatype(AdsDatatype):
             # operate on a local copy of dims list to not modify the version
             # used by the calling function (which in many cases will be another
             # branch of the recursive tree)
-            dims = copy(dims)
+            dims = copy(dims or self.dimensions)
             # pop from the left to get the index bounds of the dimension of the
             # array we are currently validating, while shortening dims for
             # validation of the next dimension
@@ -263,7 +269,7 @@ class AdsArrayDatatype(AdsDatatype):
                 raise PyadsTypeError()  # upper bound doesn't match
             if len(indices) != max(indices) - min(indices) + 1:
                 raise PyadsTypeError()  # not all inner indices are present
-            # can't iterate over dict_.values(), they might be out of order
+            # can't iterate over dict_.values(), they might not be in order,
             # iterate over sorted indices instead
             for idx in indices:
                 if isinstance(dict_[idx], dict):
@@ -307,7 +313,7 @@ class AdsArrayDatatype(AdsDatatype):
         elif isinstance(value, dict):
             # Recursively flatten the dict into a list
             try:
-                flat = self._dict_to_flat_list(value, self.dimensions)
+                flat = self._dict_to_flat_list(value)
             except PyadsTypeError as ex:
                 # TODO: make it so that the PyadsTypeError arrives with a
                 # useful messge to concatenate to the default.
