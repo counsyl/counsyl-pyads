@@ -279,7 +279,7 @@ class AdsArrayDatatype(AdsDatatype):
                     flat.append(dict_[idx])
         except AttributeError:
             raise PyadsTypeError()  # sth that should be a dict isn't
-        return flat
+        return tuple(flat)
 
     def _flat_list_to_dict(self, flat, dims=None):
         """Inverse of _dict_to_flat_list: Recursively builds a dict from a flat
@@ -292,6 +292,8 @@ class AdsArrayDatatype(AdsDatatype):
             raise PyadsTypeError(
                 "Array data must be a sequence (list, tuple, string), but %s "
                 "was given." % type(flat))
+        # Ensure flat is mutable (struct.unpack returns a tuple)
+        flat = list(flat)
         dict_ = {}
         # operate on a local copy of dims list to not modify the version
         # used by the calling function (which in many cases will be another
@@ -328,8 +330,8 @@ class AdsArrayDatatype(AdsDatatype):
         # exception.
         dims = len(self.dimensions)
         exception_str = """The Python representation of this PLC array variable
-        must either be a list of length {list_len} or a {nested} dict with keys
-        {dict_keys}. %s""".format(
+        must either be a sequence (tuple, list, string) of length {list_len} or
+        a {nested} dict with keys {dict_keys}. %s""".format(
             list_len=self.total_element_count,
             nested="%d-fold nested " % dims if dims > 1 else "",
             dict_keys=','.join(["%d..%d" % bnds for bnds in self.dimensions]))
@@ -337,7 +339,7 @@ class AdsArrayDatatype(AdsDatatype):
         # Check the value argument for correct type. If it's a dict, check the
         # dict keys against the array dimensions. After all checks, convert the
         # input value into a flattened array.
-        if isinstance(value, list):
+        if isinstance(value, Sequence):
             # Check for correct list length
             if len(value) != self.total_element_count:
                 raise PyadsTypeError(
