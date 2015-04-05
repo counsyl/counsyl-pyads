@@ -272,7 +272,7 @@ class AdsArrayDatatype(AdsDatatype):
             # can't iterate over dict_.values(), they might not be in order,
             # iterate over sorted indices instead
             for idx in indices:
-                if isinstance(dict_[idx], dict):
+                if len(dims) > 0:
                     flat += self._dict_to_flat_list(dict_[idx], dims)
                 else:
                     flat.append(dict_[idx])
