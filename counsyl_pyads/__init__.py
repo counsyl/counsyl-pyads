@@ -26,4 +26,5 @@ __all__ = [
     "BinaryParser",
     "HexBlock",
     "PYADS_ENCODING",
+    "__version__",
 ]
