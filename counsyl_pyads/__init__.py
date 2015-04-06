@@ -1,6 +1,3 @@
-PYADS_ENCODING = 'windows-1252'
-
-
 from .adsclient import AdsClient
 from .adsconnection import AdsConnection
 from .adsdatatypes import AdsDatatype
@@ -13,6 +10,9 @@ from .amspacket import AmsPacket
 from .binaryparser import BinaryParser
 from .adsutils import HexBlock
 from .version import __version__
+
+
+PYADS_ENCODING = 'windows-1252'
 
 
 __all__ = [
