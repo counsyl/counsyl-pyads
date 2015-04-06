@@ -26,7 +26,7 @@ class AmsPacket(object):
         # state flags, i.e. 0x0004 for request. (2 bytes, UInt16)
         self.state_flags = 0
         # length of data (4 bytes, UInt32)
-        self.Length = 0
+        self.length = 0
         # error code of ads-response (4 bytes, UInt32)
         self.error_code = 0
         # arbitrary number to identify request<->response (4 bytes, UInt32)
@@ -92,7 +92,7 @@ class AmsPacket(object):
 
         packet.command_id = binary.ReadUInt16()
         packet.state_flags = binary.ReadUInt16()
-        packet.Length = binary.ReadUInt32()
+        packet.length = binary.ReadUInt32()
         packet.error_code = binary.ReadUInt32()
         packet.invoke_id = binary.ReadUInt32()
         packet.data = binary.ByteData[32:]
@@ -105,7 +105,7 @@ class AmsPacket(object):
         result += "Command ID:  %s\n" % self.command_id
         result += "Invoke ID:   %s\n" % self.invoke_id
         result += "State Flags: %s\n" % self.state_flags
-        result += "Data Length: %s\n" % self.Length
+        result += "Data Length: %s\n" % self.length
         result += "Error:       %s\n" % self.error_code
 
         if (len(self.data) == 0):
