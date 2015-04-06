@@ -7,6 +7,7 @@ from collections import OrderedDict
 from collections import Sequence
 from copy import copy
 import datetime
+from functools import reduce
 import struct
 
 from . import PYADS_ENCODING
