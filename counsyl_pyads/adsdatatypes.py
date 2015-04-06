@@ -313,7 +313,7 @@ class AdsArrayDatatype(AdsDatatype):
         # elements from the flat list into the dict.
         assert(cur_dims[0] <= cur_dims[1])
         dict_ = OrderedDict()
-        for idx in range(cur_dims[0], cur_dims[1]+1):
+        for idx in xrange(cur_dims[0], cur_dims[1]+1):
             if len(dims) > 0:
                 dict_[idx] = self._flat_list_to_dict(flat, dims)
             else:
@@ -352,7 +352,7 @@ class AdsArrayDatatype(AdsDatatype):
             if len(value) != self.total_element_count:
                 raise PyadsTypeError(
                     exception_str %
-                    "The supplied list has %s elements." %
+                    "The supplied list has %d elements." %
                     len(value))
             # Nothing else to do in this branch, the array is already a
             # flattened list.
