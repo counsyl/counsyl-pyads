@@ -332,7 +332,8 @@ class AdsClient(object):
             self.socket.send(self.get_tcp_packet(amspacket))
         except Exception as ex:
             self.close()
-            raise PyadsException("Could not communicate with device: {ex}".format(ex=ex))
+            raise PyadsException(
+                "Could not communicate with device: {ex}".format(ex=ex))
 
         # here's your packet
         return self.await_command_invoke()
