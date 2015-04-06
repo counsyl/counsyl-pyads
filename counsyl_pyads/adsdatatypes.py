@@ -254,41 +254,47 @@ class AdsArrayDatatype(AdsDatatype):
         """
         # initialize the flattened list as empty
         flat = []
+        # operate on a local copy of dims list to not modify the version
+        # used by the calling function (which in many cases will be another
+        # branch of the recursive tree)
+        dims = copy(dims or self.dimensions)
+        # pop from the left to get the index bounds of the dimension of the
+        # array we are currently validating, while shortening dims for
+        # validation of the next dimension
         try:
-            # operate on a local copy of dims list to not modify the version
-            # used by the calling function (which in many cases will be another
-            # branch of the recursive tree)
-            dims = copy(dims or self.dimensions)
-            # pop from the left to get the index bounds of the dimension of the
-            # array we are currently validating, while shortening dims for
-            # validation of the next dimension
             cur_dims = dims.pop(0)
-            # perform validation for current dimension
+        except (AttributeError, KeyError);
+            raise PyadsTypeError(
+                "Failed to pop the first entry off the list of array "
+                "dimensions.")
+        try:
             indices = sorted(dict_.keys())
-            if min(indices) != cur_dims[0]:
-                raise PyadsTypeError(
-                    "Expected lowest index %d but found %d." %
-                    (cur_dims[0], min(indices)))
-            if max(indices) != cur_dims[1]:
-                raise PyadsTypeError(
-                    "Expected highgest index %d but found %d." %
-                    (cur_dims[1], max(indices)))
-            if len(indices) != max(indices) - min(indices) + 1:
-                raise PyadsTypeError(
-                    "All indices between and including {mn} and {mx} must be "
-                    "present but only {lst} are.".format(
-                        mn=min(indices),
-                        mx=max(indices),
-                        lst=','.join(map(str, indices))))
-            # can't iterate over dict_.values(), they might not be in order,
-            # iterate over sorted indices instead
-            for idx in indices:
-                if len(dims) > 0:
-                    flat += self._dict_to_flat_list(dict_[idx], dims)
-                else:
-                    flat.append(dict_[idx])
         except AttributeError:
-            raise PyadsTypeError()  # sth that should be a dict isn't
+            raise PyadsTypeError(
+                "Failed to find array keys from dict representation.")
+        # perform validation for current dimension
+        if min(indices) != cur_dims[0]:
+            raise PyadsTypeError(
+                "Expected lowest index %d but found %d." %
+                (cur_dims[0], min(indices)))
+        if max(indices) != cur_dims[1]:
+            raise PyadsTypeError(
+                "Expected highgest index %d but found %d." %
+                (cur_dims[1], max(indices)))
+        if len(indices) != max(indices) - min(indices) + 1:
+            raise PyadsTypeError(
+                "All indices between and including {mn} and {mx} must be "
+                "present but only {lst} are.".format(
+                    mn=min(indices),
+                    mx=max(indices),
+                    lst=','.join(map(str, indices))))
+        # can't iterate over dict_.values(), they might not be in order,
+        # iterate over sorted indices instead
+        for idx in indices:
+            if len(dims) > 0:
+                flat += self._dict_to_flat_list(dict_[idx], dims)
+            else:
+                flat.append(dict_[idx])
         return tuple(flat)
 
     def _flat_list_to_dict(self, flat, dims=None):
