@@ -86,13 +86,13 @@ class ReadCommand(AdsCommand):
             raise TypeError('length argument must be integer')
         super(ReadCommand, self).__init__()
         self.command_id = 0x0002
-        self.IndexGroup = indexGroup
-        self.IndexOffset = indexOffset
-        self.Length = length
+        self.index_group = indexGroup
+        self.index_offset = indexOffset
+        self.length = length
 
     def CreateRequest(self):
         return struct.pack(
-            '<III', self.IndexGroup, self.IndexOffset, self.Length)
+            '<III', self.index_group, self.index_offset, self.length)
 
     def CreateResponse(self, responsePacket):
         return ReadResponse(responsePacket)
@@ -147,14 +147,14 @@ class ReadWriteCommand(AdsCommand):
     def __init__(self, indexGroup, indexOffset, readLen, dataToWrite=''):
         super(ReadWriteCommand, self).__init__()
         self.command_id = 0x0009
-        self.IndexGroup = indexGroup
-        self.IndexOffset = indexOffset
-        self.ReadLen = readLen
+        self.index_group = indexGroup
+        self.index_offset = indexOffset
+        self.read_len = readLen
         self.data = dataToWrite
 
     def CreateRequest(self):
-        result = struct.pack('<II', self.IndexGroup, self.IndexOffset)
-        result += struct.pack('<II', self.ReadLen, len(self.data))
+        result = struct.pack('<II', self.index_group, self.index_offset)
+        result += struct.pack('<II', self.read_len, len(self.data))
         result += self.data
         return result
 
@@ -166,7 +166,7 @@ class ReadWriteResponse(AdsResponse):
     def __init__(self, responseAmsPacket):
         super(ReadWriteResponse, self).__init__(responseAmsPacket)
 
-        self.Length = struct.unpack_from('I', responseAmsPacket.data, 4)[0]
+        self.length = struct.unpack_from('I', responseAmsPacket.data, 4)[0]
         self.data = responseAmsPacket.data[8:]
 
     def __str__(self):
@@ -182,13 +182,13 @@ class WriteCommand(AdsCommand):
     def __init__(self, indexGroup, indexOffset, data):
         super(WriteCommand, self).__init__()
         self.command_id = 0x0003
-        self.IndexGroup = indexGroup
-        self.IndexOffset = indexOffset
+        self.index_group = indexGroup
+        self.index_offset = indexOffset
         self.data = data
 
     def CreateRequest(self):
         result = struct.pack(
-            '<III', self.IndexGroup, self.IndexOffset, len(self.data))
+            '<III', self.index_group, self.index_offset, len(self.data))
         result += self.data
         return result
 
