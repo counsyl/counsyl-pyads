@@ -10,7 +10,7 @@ import datetime
 from functools import reduce
 import struct
 
-from . import PYADS_ENCODING
+from .constants import PYADS_ENCODING
 from .adsexception import PyadsTypeError
 
 

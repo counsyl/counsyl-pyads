@@ -1,7 +1,7 @@
 import ctypes
 import struct
 
-from . import PYADS_ENCODING
+from .constants import PYADS_ENCODING
 from .adsutils import HexBlock
 from .amspacket import AmsPacket
 from .adsexception import AdsException

@@ -12,9 +12,6 @@ from .adsutils import HexBlock
 from .version import __version__
 
 
-PYADS_ENCODING = 'windows-1252'
-
-
 __all__ = [
     "AdsClient",
     "AdsConnection",
@@ -27,6 +24,5 @@ __all__ = [
     "AmsPacket",
     "BinaryParser",
     "HexBlock",
-    "PYADS_ENCODING",
     "__version__",
 ]
