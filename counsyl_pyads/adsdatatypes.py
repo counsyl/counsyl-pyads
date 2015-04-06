@@ -266,11 +266,20 @@ class AdsArrayDatatype(AdsDatatype):
             # perform validation for current dimension
             indices = sorted(dict_.keys())
             if min(indices) != cur_dims[0]:
-                raise PyadsTypeError()  # lower bound doesn't match
+                raise PyadsTypeError(
+                    "Expected lowest index %d but found %d." %
+                    (cur_dims[0], min(indices)))
             if max(indices) != cur_dims[1]:
-                raise PyadsTypeError()  # upper bound doesn't match
+                raise PyadsTypeError(
+                    "Expected highgest index %d but found %d." %
+                    (cur_dims[1], max(indices)))
             if len(indices) != max(indices) - min(indices) + 1:
-                raise PyadsTypeError()  # not all inner indices are present
+                raise PyadsTypeError(
+                    "All indices between and including {mn} and {mx} must be "
+                    "present but only {lst} are.".format(
+                        mn=min(indices),
+                        mx=max(indices),
+                        lst=','.join(map(str, indices))))
             # can't iterate over dict_.values(), they might not be in order,
             # iterate over sorted indices instead
             for idx in indices:
@@ -362,11 +371,7 @@ class AdsArrayDatatype(AdsDatatype):
             try:
                 flat = self._dict_to_flat_list(value)
             except PyadsTypeError as ex:
-                # TODO: make it so that the PyadsTypeError arrives with a
-                # useful messge to concatenate to the default.
-                raise PyadsTypeError(
-                    exception_str %
-                    "The supplied dict has incorrect dimensions.")
+                raise PyadsTypeError(exception_str % ex.message)
         else:
             raise PyadsTypeError(
                 exception_str % "The value must be a list or a dict.")
