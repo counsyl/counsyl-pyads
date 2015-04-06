@@ -263,7 +263,7 @@ class AdsArrayDatatype(AdsDatatype):
         # validation of the next dimension
         try:
             cur_dims = dims.pop(0)
-        except (AttributeError, KeyError);
+        except (AttributeError, KeyError):
             raise PyadsTypeError(
                 "Failed to pop the first entry off the list of array "
                 "dimensions.")
