@@ -293,9 +293,15 @@ class AdsArrayDatatype(AdsDatatype):
             raise PyadsTypeError(
                 "Array data must be a sequence (list, tuple, string), but %s "
                 "was given." % type(flat))
-        # Ensure flat is mutable (struct.unpack returns a tuple)
-        flat = list(flat)
-        dict_ = OrderedDict()
+        # For recursion to work on multi-dimensional arrays, all nodes of the
+        # recursion tree must work on the same mutable sequence (list). For
+        # that to work, convert to list iff flat is not a list. Always calling
+        # list() would result in each call to this function operating on a
+        # different copy of the input sequence. This conversion is generally
+        # useful because struct.unpack(), which is where the input to this
+        # function usually originates, returns a tuple.
+        if not isinstance(flat, list):
+            flat = list(flat)
         # operate on a local copy of dims list to not modify the version
         # used by the calling function (which in many cases will be another
         # branch of the recursive tree)
@@ -306,6 +312,7 @@ class AdsArrayDatatype(AdsDatatype):
         # Recursively step through the array specification (in dims) and pop
         # elements from the flat list into the dict.
         assert(cur_dims[0] <= cur_dims[1])
+        dict_ = OrderedDict()
         for idx in range(cur_dims[0], cur_dims[1]+1):
             if len(dims) > 0:
                 dict_[idx] = self._flat_list_to_dict(flat, dims)
