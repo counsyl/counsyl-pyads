@@ -6,6 +6,7 @@ from .adsconnection import AdsConnection
 from .adsdatatypes import AdsDatatype
 from .adsexception import PyadsException
 from .adsexception import AdsException
+from .adsexception import PyadsTypeError
 from .adsstate import AdsState
 from .adssymbol import AdsSymbol
 from .amspacket import AmsPacket
@@ -20,10 +21,12 @@ __all__ = [
     "AdsDatatype",
     "PyadsException",
     "AdsException",
+    "PyadsTypeError",
     "AdsState",
     "AdsSymbol",
     "AmsPacket",
     "BinaryParser",
     "HexBlock",
     "PYADS_ENCODING",
+    "__version__",
 ]
