@@ -39,7 +39,7 @@ lint: venv
 	$(WITH_VENV) flake8 $(PACKAGE_NAME)/
 
 test: venv
-	$(WITH_VENV) py.test --junitxml=$(TEST_OUTPUT)
+	$(WITH_VENV) py.test --cov --junitxml=$(TEST_OUTPUT)
 
 package:
 	python setup.py sdist
