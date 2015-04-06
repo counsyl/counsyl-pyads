@@ -180,7 +180,7 @@ class AdsClient(object):
         var_name: is of type unicode (or str if only ASCII characters are used)
             Both fully qualified PLC symbol names (e.g. including leading "."
             for global variables) or PLC variable names (the name used in the
-            PLC program) are accepted. Names are NoT case-sensitive because the
+            PLC program) are accepted. Names are NOT case-sensitive because the
             PLC converts all variables to all-uppercase internally.
         """
         # convert unicode or ascii input to the Windows-1252 encoding used by
