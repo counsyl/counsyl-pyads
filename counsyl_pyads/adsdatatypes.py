@@ -7,9 +7,10 @@ from collections import OrderedDict
 from collections import Sequence
 from copy import copy
 import datetime
+from functools import reduce
 import struct
 
-from . import PYADS_ENCODING
+from .constants import PYADS_ENCODING
 from .adsexception import PyadsTypeError
 
 
@@ -405,7 +406,7 @@ UDINT = AdsSingleValuedDatatype(byte_count=4, pack_format='I')  # UInt32
 # ULINT (Unsigned 64 Bit Integer, not supported by TwinCAT)
 REAL = AdsSingleValuedDatatype(byte_count=4, pack_format='f')  # float
 LREAL = AdsSingleValuedDatatype(byte_count=8, pack_format='d')  # double
-STRING = lambda str_length: AdsStringDatatype(str_length)
+STRING = AdsStringDatatype
 # Duration time. The most siginificant digit is one millisecond. The data type
 # is handled internally like DWORD.
 TIME = AdsTimeDatatype()

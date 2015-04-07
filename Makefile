@@ -1,49 +1,45 @@
 #! /usr/bin/make
 
+PACKAGE_NAME=counsyl_pyads
+TEST_OUTPUT?=nosetests.xml
+
+VENV_DIR?=.venv
+VENV_ACTIVATE=$(VENV_DIR)/bin/activate
+WITH_VENV=. $(VENV_ACTIVATE);
+
 default:
 	python setup.py check build
 
-.PHONY: register dist inspect upload clean docs test
+.PHONY: venv setup clean teardown lint test package
 
-register:
-	if [ ! -f ~/.pypirc ]; then \
-		echo "Missing ~/.pypirc file"; \
-		exit 1; \
-	fi; \
-	python setup.py register
+$(VENV_ACTIVATE): requirements.txt requirements-dev.txt
+	test -f $@ || virtualenv --python=python2.7 --system-site-packages $(VENV_DIR)
+	$(WITH_VENV) pip install -r requirements.txt
+	$(WITH_VENV) pip install -r requirements-dev.txt
+	touch $@
 
-dist:
-	python setup.py sdist
+venv: $(VENV_ACTIVATE)
 
-inspect:
-	python setup.py clean
-	rm -rf build/
-	rm -rf dist/
-	rm -rf *.egg/
-	rm -rf *.egg-info/
-	rm -f MANIFEST
-	python setup.py sdist
-	cd dist/ && tar xzvf *.tar.gz
-
-upload:
-	if [ ! -f ~/.pypirc ]; then \
-		echo "Missing ~/.pypirc file"; \
-		exit 1; \
-	fi; \
-	python setup.py sdist upload
+setup: venv
 
 clean:
 	python setup.py clean
 	rm -rf build/
 	rm -rf dist/
-	rm -rf *.egg/
-	rm -rf *.egg-info/
+	rm -rf *.egg*/
 	rm -rf __pycache__/
 	rm -f MANIFEST
-	rm -rf docs/_*/
+	rm -f $(TEST_OUTPUT)
+	find $(PACKAGE_NAME) -type f -name '*.pyc' -delete
 
-docs:
-	cd docs && make html
+teardown:
+	rm -rf $(VENV_DIR)/
 
-test:
-	nosetests -c tests/nose.cfg
+lint: venv
+	$(WITH_VENV) flake8 $(PACKAGE_NAME)/
+
+test: venv
+	$(WITH_VENV) py.test --junitxml=$(TEST_OUTPUT)
+
+package:
+	python setup.py sdist
