@@ -5,7 +5,7 @@ import struct
 import threading
 import time
 
-from . import PYADS_ENCODING
+from .constants import PYADS_ENCODING
 from .adscommands import DeviceInfoCommand
 from .adscommands import ReadCommand
 from .adscommands import ReadStateCommand

@@ -1,9 +1,18 @@
+"""Exceptions representing errors in the ADS/AMS protocol or data conversion.
+
+All exceptions raised by the pyads library are sub-classed from the
+PyadsException.
+"""
+
+
 class PyadsException(Exception):
+    """Base exception class for the pyads library."""
     pass
 
 
 class AdsException(PyadsException):
-
+    """Represents error codes specified in the ADS protocol as Python exception
+    """
     def __init__(self, code):
         self.code = code
 
@@ -95,3 +104,9 @@ class AdsException(PyadsException):
         0x754: "invalid response received",
         0x755: "sync port is locked",
     }
+
+
+class PyadsTypeError(PyadsException, TypeError):
+    """Raised when a supplied value cannot be converted to the data type of a
+    PLC variable."""
+    pass
