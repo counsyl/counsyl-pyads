@@ -416,7 +416,3 @@ DATE = AdsDateDatatype()
 DATE_AND_TIME = AdsDateAndTimeDatatype()
 DT = DATE_AND_TIME  # alias
 
-# TODO: Other data types seen in PLC output but not handled yet:
-# * TON
-# * FW_NOOFBYTE
-# * SCALING_BLOCK (custom data type used by @neldridge)
