@@ -84,7 +84,11 @@ class AdsStringDatatype(AdsSingleValuedDatatype):
         characters and white space.
         """
         value = super(AdsStringDatatype, self).unpack(value)
-        return value.decode(PYADS_ENCODING).strip(' \t\r\n\0')
+        decoded = value.decode(PYADS_ENCODING, 'ignore').strip(' \t\r\n\0')
+        try:
+            return decoded[:decoded.index('\x00')]
+        except ValueError:
+            return decoded
 
     def unpack_from_buffer(self, byte_buffer, offset):
         """c.f. unpack()"""
