@@ -80,7 +80,7 @@ class AdsStringDatatype(AdsSingleValuedDatatype):
             byte_buffer, offset, value)
 
     def unpack(self, value):
-        """Unpacks the value into a string of str_length, strips
+        """Unpacks the value into a string of str_length, splits
         the value at the null character, then strips null
         characters and white space.
         """
