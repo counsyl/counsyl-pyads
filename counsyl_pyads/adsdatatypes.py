@@ -80,21 +80,20 @@ class AdsStringDatatype(AdsSingleValuedDatatype):
             byte_buffer, offset, value)
 
     def unpack(self, value):
-        """Unpacks the value into a string of str_length, then strips null
+        """Unpacks the value into a string of str_length, strips
+        the value at the null character, then strips null
         characters and white space.
         """
         value = super(AdsStringDatatype, self).unpack(value)
-        decoded = value.decode(PYADS_ENCODING, 'ignore').strip(' \t\r\n\0')
-        try:
-            return decoded[:decoded.index('\x00')]
-        except ValueError:
-            return decoded
+        value = value.split('\x00', 1)[0]
+        return value.decode(PYADS_ENCODING, 'ignore').strip(' \t\r\n\0')
 
     def unpack_from_buffer(self, byte_buffer, offset):
         """c.f. unpack()"""
         value = super(AdsStringDatatype, self).unpack_from_buffer(
             byte_buffer, offset)
-        return value.decode(PYADS_ENCODING).strip(' \t\r\n\0')
+        value = value.split('\x00', 1)[0]
+        return value.decode(PYADS_ENCODING, 'ignore').strip(' \t\r\n\0')
 
 
 class AdsTimeDatatype(AdsSingleValuedDatatype):
