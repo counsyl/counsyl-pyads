@@ -86,14 +86,14 @@ class AdsStringDatatype(AdsSingleValuedDatatype):
         """
         value = super(AdsStringDatatype, self).unpack(value)
         value = value.split('\x00', 1)[0]
-        return value.decode(PYADS_ENCODING, 'ignore').strip(' \t\r\n\0')
+        return value.decode(PYADS_ENCODING).strip(' \t\r\n\0')
 
     def unpack_from_buffer(self, byte_buffer, offset):
         """c.f. unpack()"""
         value = super(AdsStringDatatype, self).unpack_from_buffer(
             byte_buffer, offset)
         value = value.split('\x00', 1)[0]
-        return value.decode(PYADS_ENCODING, 'ignore').strip(' \t\r\n\0')
+        return value.decode(PYADS_ENCODING).strip(' \t\r\n\0')
 
 
 class AdsTimeDatatype(AdsSingleValuedDatatype):
