@@ -68,6 +68,9 @@ class AdsStringDatatype(AdsSingleValuedDatatype):
         super(AdsStringDatatype, self).__init__(
             byte_count=str_length, pack_format='%ss' % str_length)
 
+    def byte_str_to_decoded_str(self, byte_str):
+        return byte_str.split('\x00', 1)[0].decode(PYADS_ENCODING)
+
     def pack(self, value):
         # encode in Windows-1252 encoding
         value = value.encode(PYADS_ENCODING)
@@ -80,20 +83,17 @@ class AdsStringDatatype(AdsSingleValuedDatatype):
             byte_buffer, offset, value)
 
     def unpack(self, value):
-        """Unpacks the value into a string of str_length, splits
-        the value at the null character, then strips null
-        characters and white space.
+        """Unpacks the value into a byte string of str_length, then
+        drops all bytes after and including the first NULL character.
         """
         value = super(AdsStringDatatype, self).unpack(value)
-        value = value.split('\x00', 1)[0]
-        return value.decode(PYADS_ENCODING).strip(' \t\r\n\0')
+        return self.byte_str_to_decoded_str(value)
 
     def unpack_from_buffer(self, byte_buffer, offset):
         """c.f. unpack()"""
         value = super(AdsStringDatatype, self).unpack_from_buffer(
             byte_buffer, offset)
-        value = value.split('\x00', 1)[0]
-        return value.decode(PYADS_ENCODING).strip(' \t\r\n\0')
+        return self.byte_str_to_decoded_str(value)
 
 
 class AdsTimeDatatype(AdsSingleValuedDatatype):
