@@ -68,6 +68,9 @@ class AdsStringDatatype(AdsSingleValuedDatatype):
         super(AdsStringDatatype, self).__init__(
             byte_count=str_length, pack_format='%ss' % str_length)
 
+    def byte_str_to_decoded_str(self, byte_str):
+        return byte_str.split('\x00', 1)[0].decode(PYADS_ENCODING)
+
     def pack(self, value):
         # encode in Windows-1252 encoding
         value = value.encode(PYADS_ENCODING)
@@ -80,17 +83,17 @@ class AdsStringDatatype(AdsSingleValuedDatatype):
             byte_buffer, offset, value)
 
     def unpack(self, value):
-        """Unpacks the value into a string of str_length, then strips null
-        characters and white space.
+        """Unpacks the value into a byte string of str_length, then
+        drops all bytes after and including the first NULL character.
         """
         value = super(AdsStringDatatype, self).unpack(value)
-        return value.decode(PYADS_ENCODING).strip(' \t\r\n\0')
+        return self.byte_str_to_decoded_str(value)
 
     def unpack_from_buffer(self, byte_buffer, offset):
         """c.f. unpack()"""
         value = super(AdsStringDatatype, self).unpack_from_buffer(
             byte_buffer, offset)
-        return value.decode(PYADS_ENCODING).strip(' \t\r\n\0')
+        return self.byte_str_to_decoded_str(value)
 
 
 class AdsTimeDatatype(AdsSingleValuedDatatype):
@@ -119,7 +122,7 @@ class AdsTimeDatatype(AdsSingleValuedDatatype):
         assert(isinstance(value, int))
         # pretend this is a timestamp in millisecond resolution and get the
         # datetime ignoring timezones, then discard the date component
-        dt = datetime.datetime.utcfromtimestamp(value/1000.0)
+        dt = datetime.datetime.utcfromtimestamp(value / 1000.0)
         return dt.time()
 
     def pack(self, value):
@@ -218,7 +221,7 @@ class AdsArrayDatatype(AdsDatatype):
         # if the array is 1-dimensional and zero-indexed the dimensions
         # argument could be an integer
         if isinstance(dimensions, int):
-            self.dimensions = [(0, dimensions-1)]  # 0..n => n+1 elements!
+            self.dimensions = [(0, dimensions - 1)]  # 0..n => n+1 elements!
         elif isinstance(dimensions, list):
             self.dimensions = dimensions
         else:
@@ -229,7 +232,7 @@ class AdsArrayDatatype(AdsDatatype):
         # calculate the total number of elements in the array, keeping in mind
         # that it could be multidimensional
         self.total_element_count = reduce(
-            lambda x, y: x * (y[1]-y[0]+1),  # 1..4 => 4 elements!
+            lambda x, y: x * (y[1] - y[0] + 1),  # 1..4 => 4 elements!
             dimensions, 1)
 
         total_byte_count = self.total_element_count * data_type.byte_count
@@ -329,7 +332,7 @@ class AdsArrayDatatype(AdsDatatype):
         # elements from the flat list into the dict.
         assert(cur_dims[0] <= cur_dims[1])
         dict_ = OrderedDict()
-        for idx in xrange(cur_dims[0], cur_dims[1]+1):
+        for idx in xrange(cur_dims[0], cur_dims[1] + 1):
             if len(dims) > 0:
                 dict_[idx] = self._flat_list_to_dict(flat, dims)
             else:
@@ -415,4 +418,3 @@ TOD = TIME_OF_DAY  # alias
 DATE = AdsDateDatatype()
 DATE_AND_TIME = AdsDateAndTimeDatatype()
 DT = DATE_AND_TIME  # alias
-
