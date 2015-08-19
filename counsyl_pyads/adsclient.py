@@ -348,7 +348,7 @@ class AdsClient(object):
             comment = resp2.data[comment_start_ptr:comment_end_ptr].decode(
                 PYADS_ENCODING).strip(' \t\n\r\0')
 
-            ptr = read_length
+            ptr = ptr + read_length
 
             symbol = AdsSymbol(
                 index_group, index_offset, name, symtype, comment)
