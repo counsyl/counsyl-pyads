@@ -217,7 +217,12 @@ class AdsClient(object):
             readLen=0xFFFF,
             dataToWrite=var_name_enc + '\x00')
 
-        read_length = struct.unpack("I", resp.data[0:4])[0]
+        # First four bytes are the full length of the variable definition,
+        # which in Twincat3 includes a non-constant number of bytes of
+        # undocumented purpose. Commenting this out because it's not useful
+        # when not reading those undocumented bytes, but keeping around as
+        # a reminder that this information exists.
+        # read_length = struct.unpack("I", resp.data[0:4])[0]
         index_group = struct.unpack("I", resp.data[4:8])[0]
         index_offset = struct.unpack("I", resp.data[8:12])[0]
         name_length = struct.unpack("H", resp.data[24:26])[0]
@@ -238,7 +243,7 @@ class AdsClient(object):
             PYADS_ENCODING).strip(' \t\n\r\0')
 
         return AdsSymbol(
-            read_length, index_group, index_offset, name, symtype, comment)
+            index_group, index_offset, name, symtype, comment)
 
     def read_by_handle(self, symbolHandle, ads_data_type):
         """Retrieves the current value of a symbol identified by its handle.
@@ -343,10 +348,10 @@ class AdsClient(object):
             comment = resp2.data[comment_start_ptr:comment_end_ptr].decode(
                 PYADS_ENCODING).strip(' \t\n\r\0')
 
-            ptr = comment_end_ptr + 1
+            ptr = ptr + read_length
 
             symbol = AdsSymbol(
-                read_length, index_group, index_offset, name, symtype, comment)
+                index_group, index_offset, name, symtype, comment)
 
             symbols.append(symbol)
 
