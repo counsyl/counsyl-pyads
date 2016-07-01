@@ -13,4 +13,11 @@ setup(
     author_email='opensource@counsyl.com',
     description='A library for directly interacting with a Twincat PLC.',
     url='https://github.com/counsyl/counsyl_pyads/',
+    classifiers=[
+        'Development Status :: 5 - Production/Stable',
+        'License :: OSI Approved :: MIT License',
+        'Programming Language :: Python',
+        'Topic :: Scientific/Engineering :: Interface Engine/Protocol Translator',
+        'Topic :: Software Development :: Libraries :: Python Modules',
+    ],
 )
