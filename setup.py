@@ -9,11 +9,8 @@ setup(
     scripts=['bin/twincat_plc_info.py'],
     include_package_data=True,
     zip_safe=False,
-    description=(
-        'A library for directly interacting with a Twincat PLC. Based on '
-        'https://github.com/chwiede/pyads.'
-    ),
     author='Counsyl Inc.',
     author_email='opensource@counsyl.com',
+    description='A library for directly interacting with a Twincat PLC.',
     url='https://github.com/counsyl/counsyl_pyads/',
 )
