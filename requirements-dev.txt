@@ -1,5 +1,24 @@
---index-url https://pypi.counsyl.com/counsyl/prod
+# This file is based on v0.0.6 of the requirements-dev.txt template for Counsyl
+# automation library repos from https://github.counsyl.com/automation/boilerplate/
+#
+# Before editing this file, consider updating the template instead, or removing
+# this comment to prevent future template updates from being propagated here.
+#
+--index-url https://pypi.counsyl.com/counsyl/prod/
 
-flake8==2.2.3
-pytest==2.7.0
-pytest-cov==1.8.1
+# pytest and dependencies
+pytest==2.8.5
+py==1.4.30
+pytest-cov==2.2.0
+coverage==4.0.3
+
+# flake8 and its requirements
+flake8==2.5.1
+mccabe==0.3.1
+pep8==1.5.7
+pyflakes==1.0.0
+
+
+# End of boilerplate template. Automatic updates will leave lines below intact.
+# Repo specific dev requirements (e.g. pytest plugins) can be added here.
+
