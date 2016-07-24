@@ -1,6 +1,14 @@
+# This file is based on v0.0.6 of the gitignore template for Counsyl
+# automation library repos from https://github.counsyl.com/automation/boilerplate/
+#
+# Before editing this file, consider updating the template instead, or removing
+# this comment to prevent future template updates from being propagated here.
+#
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
+*$py.class
 
 # C extensions
 *.so
@@ -11,7 +19,9 @@ env/
 build/
 develop-eggs/
 dist/
+downloads/
 eggs/
+.eggs/
 lib/
 lib64/
 parts/
@@ -27,30 +37,17 @@ pip-delete-this-directory.txt
 
 # Unit test / coverage reports
 htmlcov/
-.tox/
 .coverage
+.coverage.*
 .cache
 nosetests.xml
 coverage.xml
 
-# Translations
-*.mo
+# Dev environment leftovers
+.env/
+.venv/
 
-# Mr Developer
-.mr.developer.cfg
-.project
-.pydevproject
 
-# Rope
-.ropeproject
-
-# Django stuff:
-*.log
-*.pot
-
-# Sphinx documentation
-docs/_build/
-
-# CI
-.venv
+# End of boilerplate template. Automatic updates will leave lines below intact.
+# Repo specific ignore patterns can be added here.
 
