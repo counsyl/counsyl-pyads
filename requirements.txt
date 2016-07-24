@@ -1,1 +1,1 @@
---index-url https://pypi.counsyl.com/counsyl/prod
+--index-url https://pypi.counsyl.com/counsyl/prod/
