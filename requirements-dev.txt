@@ -1,4 +1,4 @@
-# This file is based on v0.0.6 of the requirements-dev.txt template for Counsyl
+# This file is based on v0.0.7 of the requirements-dev.txt template for Counsyl
 # automation library repos from https://github.counsyl.com/automation/boilerplate/
 #
 # Before editing this file, consider updating the template instead, or removing

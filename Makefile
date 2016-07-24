@@ -1,4 +1,4 @@
-# This file is based on v0.0.6 of the Makefile template for Counsyl
+# This file is based on v0.0.7 of the Makefile template for Counsyl
 # automation library repos from https://github.counsyl.com/automation/boilerplate/
 #
 # Before editing this file, consider updating the template instead, or removing
@@ -30,6 +30,10 @@ venv: $(VENV_ACTIVATE)
 .PHONY: setup
 setup: venv
 
+.PHONY: develop
+develop: venv
+	$(WITH_VENV) python setup.py develop
+
 .PHONY: clean
 clean:
 	python setup.py clean
@@ -52,9 +56,10 @@ lint: venv
 	$(WITH_VENV) flake8 -v $(PACKAGE_NAME)/
 
 .PHONY: test
-test: venv
-	$(WITH_VENV) py.test $(PACKAGE_NAME) -v \
+test: develop
+	$(WITH_VENV) py.test -v \
 	--doctest-modules \
+	--ignore=setup.py \
 	--junit-xml=$(TEST_OUTPUT_DIR)/$(TEST_OUTPUT_XML) \
 	--cov=${PACKAGE_NAME} \
 	--cov-report=html
