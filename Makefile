@@ -1,4 +1,4 @@
-# This file is based on v0.0.7 of the Makefile template for Counsyl
+# This file is based on v0.0.12 of the Makefile template for Counsyl
 # automation library repos from https://github.counsyl.com/automation/boilerplate/
 #
 # Before editing this file, consider updating the template instead, or removing
@@ -12,6 +12,9 @@ COVERAGE_DIR?=htmlcov
 COVERAGE_DATA?=.coverage
 
 VENV_DIR?=.venv
+ifneq ($(VIRTUAL_ENV),)
+	VENV_DIR=$(VIRTUAL_ENV)
+endif
 VENV_ACTIVATE=$(VENV_DIR)/bin/activate
 WITH_VENV=. $(VENV_ACTIVATE);
 
@@ -53,16 +56,22 @@ teardown:
 
 .PHONY: lint
 lint: venv
-	$(WITH_VENV) flake8 -v $(PACKAGE_NAME)/
+	$(WITH_VENV) flake8 -v $(PACKAGE_NAME)/ $(LINT_ARGS)
+
+.PHONY: quality
+quality: venv
+	$(WITH_VENV) radon cc -s $(PACKAGE_NAME)/
+	$(WITH_VENV) radon mi $(PACKAGE_NAME)/
 
 .PHONY: test
 test: develop
 	$(WITH_VENV) py.test -v \
 	--doctest-modules \
 	--ignore=setup.py \
+	--ignore=$(VENV_DIR) \
 	--junit-xml=$(TEST_OUTPUT_DIR)/$(TEST_OUTPUT_XML) \
 	--cov=${PACKAGE_NAME} \
-	--cov-report=html
+	--cov-report=html $(TEST_ARGS)
 
 .PHONY: sdist
 sdist:
