@@ -1,4 +1,4 @@
-# This file is based on v0.0.7 of the requirements-dev.txt template for Counsyl
+# This file is based on v0.0.12 of the requirements-dev.txt template for Counsyl
 # automation library repos from https://github.counsyl.com/automation/boilerplate/
 #
 # Before editing this file, consider updating the template instead, or removing
@@ -18,7 +18,19 @@ mccabe==0.3.1
 pep8==1.5.7
 pyflakes==1.0.0
 
+# mock and its requirements
+mock==1.3.0
+funcsigs==0.4
+pbr==1.8.1
+six==1.10.0
+
+# radon and its requirements
+radon==1.4.0
+mando==0.3.3
+colorama==0.3.7
+
 
 # End of boilerplate template. Automatic updates will leave lines below intact.
 # Repo specific dev requirements (e.g. pytest plugins) can be added here.
+
 
