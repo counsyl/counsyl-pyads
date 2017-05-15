@@ -4,7 +4,6 @@
 # Before editing this file, consider updating the template instead, or removing
 # this comment to prevent future template updates from being propagated here.
 #
---index-url https://pypi.counsyl.com/counsyl/prod/
 
 # pytest and dependencies
 pytest==2.8.5
