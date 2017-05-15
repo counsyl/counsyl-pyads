@@ -12,7 +12,7 @@ setup(
     author='Counsyl Inc.',
     author_email='opensource@counsyl.com',
     description='A library for directly interacting with a Twincat PLC.',
-    url='https://github.com/counsyl/counsyl_pyads/',
+    url='https://github.com/counsyl/counsyl-pyads/',
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'License :: OSI Approved :: MIT License',
