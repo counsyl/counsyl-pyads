@@ -1,10 +1,3 @@
-# This file is based on v0.0.12 of the gitignore template for Counsyl
-# automation library repos from https://github.counsyl.com/automation/boilerplate/
-#
-# Before editing this file, consider updating the template instead, or removing
-# this comment to prevent future template updates from being propagated here.
-#
-
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -46,8 +39,3 @@ coverage.xml
 # Dev environment leftovers
 .env/
 .venv/
-
-
-# End of boilerplate template. Automatic updates will leave lines below intact.
-# Repo specific ignore patterns can be added here.
-
