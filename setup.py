@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 exec(open('counsyl_pyads/version.py').read())
 
 setup(
-    name='counsyl_pyads',
+    name='counsyl-pyads',
     version=__version__,
     packages=find_packages(),
     scripts=['bin/twincat_plc_info.py'],
