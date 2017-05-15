@@ -7,7 +7,7 @@ This Python package contains a Python-only implementation of the AMS/ADS (Automa
 ### Installation
 
 ```
-git clone git@github.counsyl.com:dev/counsyl_pyads.git
+git clone git@counsyl.com:counsyl/counsyl_pyads.git
 cd counsyl_pyads
 # consider making yourself a virtualenv
 pip install -r requirements.txt
@@ -19,8 +19,8 @@ python setup.py install
 Beckhoff PLCs won't accept connections from just anyone. The Twincat System Manager on the PLC contains a list of "routes" that define allowed clients. Perform the following steps to add the host where you plan to use `counsyl_pyads` to the list of routes:
 
  1. Find your local IP address (`ifconfig | grep inet` should help), e.g. `192.168.4.13`
- * Dream up an Ams ID for your local machine. The Ams ID is a program identifier used by the ADS protocol. It's often `IP address + .1.1` but any six byte sequence works, for example`192.168.192.168.1.1`.
- * RDP to the PLC and log in (get the password from anyone on the automation team)
+ * Dream up an Ams ID for your local machine. The Ams ID is a program identifier used by the ADS protocol. It's often `IP address + .1.1` but any six byte sequence works, for example`192.168.192.168.1.1`. See the [Beckoff Documentation](https://infosys.beckhoff.com/english.php?content=../content/1033/tcadscommon/html/tcadscommon_remoteconnection.htm&id=) for more information.
+ * Connect to the PLC computer and log in
  * Open the System Manager (right click Twincat tray icon, then select System Manager)
  * Navigate to `SYSTEM - Configuration`, `Route Settings`, then open the `Static Routes` tab
  * Click `Add`. In the `Add Route Dialog` window, you need to fill out the bottom half of the form
@@ -32,8 +32,6 @@ Beckhoff PLCs won't accept connections from just anyone. The Twincat System Mana
      * `Connection Timeout`: 5
      * `Target Route`: Static
      * `Remote Route`: None
-
-Alternatively, you could use the registration helper script in the [pyads_relay](https://github.counsyl.com/automation/pyads_relay) package.
 
 
 ### Usage
