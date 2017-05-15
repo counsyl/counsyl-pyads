@@ -1,7 +1,9 @@
 counsyl-pyads
 =============
 
-This Python package contains a Python-only implementation of the AMS/ADS (Automation Device Specification) protocol for communicating directly with Beckhoff PLCs. No router is included or required. It is a fork of the [pyads library by Christoph Wiedemann](https://github.com/chwiede/pyads).
+This Python package contains a Python-only implementation of the AMS/ADS (Automation Device Specification) protocol for communicating directly with Beckhoff PLCs.
+No router is included or required.
+It is a fork of the [pyads library by Christoph Wiedemann](https://github.com/chwiede/pyads), with support for more data types (including arrays).
 
 
 ### Installation
