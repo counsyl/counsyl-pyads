@@ -9,7 +9,7 @@ It is a fork of the [pyads library by Christoph Wiedemann](https://github.com/ch
 ### Installation
 
 ```
-git clone git@counsyl.com:counsyl/counsyl-pyads.git
+git clone git@github.com:counsyl/counsyl-pyads.git
 cd counsyl-pyads
 # consider making yourself a virtualenv
 pip install -r requirements.txt
