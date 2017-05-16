@@ -1,10 +1,3 @@
-# This file is based on v0.0.12 of the Makefile template for Counsyl
-# automation library repos from https://github.counsyl.com/automation/boilerplate/
-#
-# Before editing this file, consider updating the template instead, or removing
-# this comment to prevent future template updates from being propagated here.
-#
-
 PACKAGE_NAME?=counsyl_pyads
 TEST_OUTPUT_DIR?=test-output
 TEST_OUTPUT_XML?=nosetests.xml
@@ -76,8 +69,3 @@ test: develop
 .PHONY: sdist
 sdist:
 	python setup.py sdist
-
-
-# End of boilerplate template. Automatic updates will leave lines below intact.
-# Repo specific make targets can be added here.
-
